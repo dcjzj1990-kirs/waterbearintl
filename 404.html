@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found | WaterbearIntl</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .error-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: var(--dj-black);
+      color: var(--dj-text);
+      padding: 24px;
+    }
+    .error-code {
+      font-size: clamp(6rem, 15vw, 12rem);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--dj-accent), var(--dj-accent-light), #66b3ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.04em;
+      margin-bottom: 16px;
+    }
+    .error-text {
+      font-size: 1.2rem;
+      color: var(--dj-text-secondary);
+      margin-bottom: 40px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .error-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .error-particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .error-content {
+      position: relative;
+      z-index: 1;
+    }
+    .error-subtitle {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dj-text);
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body class="page-home">
+  <div class="error-particles" id="errorParticles"></div>
+  <div class="error-content">
+    <div class="error-code">404</div>
+    <div class="error-subtitle">Page Not Found</div>
+    <p class="error-text">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+    <div class="error-actions">
+      <a href="index.html" class="btn btn-accent btn-lg">Back to Home</a>
+      <a href="products.html" class="btn btn-outline btn-lg">View Products</a>
+    </div>
+  </div>
+  <script>
+    // Simple particle animation for 404 page
+    (function() {
+      const c = document.getElementById('errorParticles');
+      if (!c) return;
+      const ctx = c.getContext('2d');
+      let w, h, particles = [];
+      function resize() {
+        w = c.width = window.innerWidth;
+        h = c.height = window.innerHeight;
+      }
+      resize();
+      for (let i = 0; i < 40; i++) {
+        particles.push({
+          x: Math.random() * w, y: Math.random() * h,
+          vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3,
+          r: Math.random()*1.5+0.5, o: Math.random()*0.3+0.1
+        });
+      }
+      function draw() {
+        ctx.clearRect(0,0,w,h);
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy;
+          if (p.x<0||p.x>w) p.vx*=-1;
+          if (p.y<0||p.y>h) p.vy*=-1;
+          ctx.beginPath();
+          ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+          ctx.fillStyle='rgba(0,140,255,'+p.o+')';
+          ctx.fill();
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+      window.addEventListener('resize', resize);
+    })();
+  </script>
+</body>
+</html>

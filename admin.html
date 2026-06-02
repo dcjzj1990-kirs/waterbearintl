@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WaterbearIntl - 后台管理</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:#0b0d14;--card:#121520;--sidebar:#0e1018;--border:#1a1d2a;--text:#c0c5d4;--muted:#5b6080;
+      --accent:#508aff;--accent2:#3860e0;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+      --radius:10px;--sw:225px
+    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+    
+    /* Sidebar */
+    .sidebar{width:var(--sw);background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+    .sb-brand{padding:20px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+    .sb-brand .bicon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0}
+    .sb-brand .bname{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.2px}
+    .nav-label{padding:14px 18px 5px;font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:1.5px;font-weight:700}
+    .nav-item{display:flex;align-items:center;gap:9px;padding:9px 12px;margin:0 8px;border-radius:7px;color:var(--muted);cursor:pointer;font-size:13px;transition:all .15s}
+    .nav-item svg{width:17px;height:17px;opacity:.6;flex-shrink:0}
+    .nav-item:hover{background:rgba(255,255,255,.03);color:#d0d4e0}
+    .nav-item.active{background:rgba(80,138,255,.1);color:#fff;border:1px solid rgba(80,138,255,.2)}
+    .nav-item .badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;padding:2px 7px;border-radius:9px;min-width:18px;text-align:center}
+    .sb-footer{padding:16px 18px;border-top:1px solid var(--border);margin-top:auto}
+    .sb-footer .user{font-size:12.5px;font-weight:600;color:#fff}
+    .sb-footer .role{font-size:10.5px;color:var(--muted);margin:2px 0 8px}
+    
+    /* Main */
+    .main{margin-left:var(--sw);flex:1;overflow-y:auto;padding:24px 32px 36px;min-height:100vh}
+    .page-header{margin-bottom:22px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .page-header h2{font-size:20px;font-weight:700;color:#fff}
+    .page-header .sub{color:var(--muted);font-size:12.5px;margin-top:1px}
+    
+    /* Stats */
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:24px}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:flex-start;justify-content:space-between;cursor:pointer;transition:all .15s}
+    .stat:hover{background:rgba(255,255,255,.02);border-color:var(--accent);transform:translateY(-2px)}
+    .stat .s-icon{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+    .stat .s-icon.blue{background:rgba(80,138,255,.12);color:var(--accent)}
+    .stat .s-icon.green{background:rgba(34,197,94,.12);color:var(--green)}
+    .stat .s-icon.amber{background:rgba(245,158,11,.12);color:var(--amber)}
+    .stat .s-icon.red{background:rgba(239,68,68,.12);color:var(--red)}
+    .stat .s-num{font-size:28px;font-weight:800;color:#fff;line-height:1.1}
+    .stat .s-label{font-size:11px;color:var(--muted);margin-top:3px}
+    
+    /* Card */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+    .card-hd{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .card-hd h3{font-size:13.5px;font-weight:600;color:#fff}
+    .card-hd .tools{display:flex;align-items:center;gap:6px}
+    .card-bd{padding:0}
+    .card-pad{padding:20px}
+    
+    /* Table */
+    table{width:100%;border-collapse:collapse}
+    th{padding:10px 14px;font-size:11px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);text-align:left;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+    td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.01)}
+    .chk-cell{width:36px}
+    
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border:none;border-radius:6px;font-size:12.5px;cursor:pointer;transition:all .15s;font-weight:500;white-space:nowrap}
+    .btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:var(--accent2)}
+    .btn-o{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-o:hover{background:rgba(255,255,255,.03)}
+    .btn-d{color:var(--red)}.btn-d:hover{background:rgba(239,68,68,.08)}
+    .btn-s{background:var(--green);color:#fff}.btn-s:hover{opacity:.85}
+    .btn-a{background:var(--amber);color:#000}.btn-a:hover{opacity:.85}
+    .btn-sm{padding:4px 9px;font-size:11.5px;border-radius:5px}
+    .btn-xs{padding:3px 7px;font-size:10.5px;border-radius:4px}
+    
+    /* Advanced table features */
+    .table-actions{display:flex;gap:4px;flex-wrap:wrap}
+    .table-img{width:50px;height:50px;border-radius:4px;object-fit:cover;border:1px solid var(--border)}
+    .table-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:10px}
+    .table-status.on{background:rgba(34,197,94,.1);color:var(--green)}
+    .table-status.off{background:rgba(91,96,128,.1);color:var(--muted)}
+    .table-status.featured{background:rgba(245,158,11,.1);color:var(--amber)}
+    .table-tag{display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;margin-right:3px}
+    .table-tag.hot{background:rgba(239,68,68,.1);color:#ff6b6b}
+    .table-tag.new{background:rgba(80,138,255,.1);color:var(--accent)}
+    .table-tag.best{background:rgba(34,197,94,.1);color:var(--green)}
+    .table-price{font-weight:600;color:#fff}
+    .table-sort{display:inline-flex;align-items:center;gap:2px;cursor:pointer;user-select:none}
+    .table-sort:hover{color:var(--accent)}
+    .table-sort.active{color:var(--accent)}
+    .table-sort .arrow{font-size:9px;opacity:.6}
+    .table-filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+    .table-filter-bar .filter-item{display:flex;align-items:center;gap:4px;font-size:12px;padding:4px 8px;background:var(--bg);border:1px solid var(--border);border-radius:5px;cursor:pointer}
+    .table-filter-bar .filter-item.active{background:rgba(80,138,255,.1);border-color:var(--accent);color:var(--accent)}
+    .table-export-menu{position:relative;display:inline-block}
+    .table-export-menu .menu{display:none;position:absolute;top:100%;right:0;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:6px 0;min-width:120px;z-index:10;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+    .table-export-menu:hover .menu{display:block}
+    .table-export-menu .menu button{display:block;width:100%;padding:6px 12px;background:none;border:none;color:var(--text);text-align:left;font-size:12px;cursor:pointer}
+    .table-export-menu .menu button:hover{background:rgba(255,255,255,.05)}
+    .table-bulk-actions{display:flex;gap:6px;align-items:center;margin-bottom:12px;padding:8px;background:rgba(80,138,255,.05);border:1px solid rgba(80,138,255,.2);border-radius:6px}
+    .table-bulk-actions.hidden{display:none}
+    .table-preview{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .table-actions-dropdown{position:relative}
+    .table-actions-dropdown .dropdown{display:none;position:absolute;right:0;top:100%;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:4px 0;min-width:100px;z-index:10;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+    .table-actions-dropdown:hover .dropdown{display:block}
+    .table-actions-dropdown .dropdown button{display:block;width:100%;padding:6px 12px;background:none;border:none;color:var(--text);text-align:left;font-size:11.5px;cursor:pointer}
+    .table-actions-dropdown .dropdown button:hover{background:rgba(255,255,255,.05)}
+    .table-actions-dropdown .dropdown button.del{color:var(--red)}
+    
+    /* Form */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:640px){.form-row{grid-template-columns:1fr}}
+    .fg{margin-bottom:12px}
+    .fg label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500}
+    .fg input,.fg textarea,.fg select{width:100%;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;resize:vertical}
+    .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--accent)}
+    
+    /* Modal */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;align-items:center;justify-content:center}
+    .modal-overlay.show{display:flex}
+    .modal{background:var(--card);border:1px solid var(--border);border-radius:14px;width:92%;max-width:620px;max-height:88vh;overflow-y:auto;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+    .modal h3{font-size:16px;color:#fff;margin-bottom:20px;font-weight:700}
+    .modal-ft{display:flex;gap:8px;justify-content:flex-end;margin-top:22px;padding-top:14px;border-top:1px solid var(--border)}
+    
+    /* Login */
+    .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);width:100%}
+    .login-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:40px 32px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .login-box .logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:32px;font-size:18px;font-weight:700;color:#fff}
+    .login-box .logo .licon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff}
+    .login-box .lerr{background:rgba(239,68,68,.1);color:var(--red);padding:9px 12px;border-radius:7px;font-size:12.5px;margin-bottom:14px;display:none}
+    
+    /* Tags */
+    .tag{display:inline-block;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:500}
+    .tag-on{background:rgba(34,197,94,.1);color:var(--green)}
+    .tag-off{background:rgba(91,96,128,.1);color:var(--muted)}
+    .tag-new{background:rgba(80,138,255,.1);color:var(--accent)}
+    .tag-hot{background:rgba(245,158,11,.1);color:var(--amber)}
+    
+    /* Image grid */
+    .img-search{display:flex;gap:6px;margin-bottom:14px}
+    .img-search input{flex:1;padding:7px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12.5px;outline:none}
+    .img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+    .img-card{background:var(--bg);border:1px solid var(--border);border-radius:7px;overflow:hidden;position:relative;cursor:pointer}
+    .img-card.sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(80,138,255,.3)}
+    .img-card img{width:100%;height:110px;object-fit:cover;display:block}
+    .img-card .chk{position:absolute;top:5px;left:5px;width:18px;height:18px;background:rgba(0,0,0,.6);border:2px solid rgba(255,255,255,.4);border-radius:4px;display:none;align-items:center;justify-content:center}
+    .img-card.sel .chk{background:var(--accent);border-color:var(--accent)}
+    .img-card.select-mode .chk{display:flex}
+    .img-card .img-act{position:absolute;top:5px;right:5px;display:none;gap:3px}
+    .img-card:hover .img-act{display:flex}
+    .img-act button{width:24px;height:24px;border-radius:5px;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);color:#fff}
+    .img-card .img-name{padding:6px 9px;font-size:10.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    
+    /* Image preview modal */
+    .img-preview{text-align:center}
+    .img-preview img{max-width:100%;max-height:70vh;border-radius:8px}
+    .img-preview .meta{display:flex;gap:20px;justify-content:center;margin-top:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+    
+    /* Drop zone */
+    .drop{display:none;border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:14px}
+    .drop.active{display:block}
+    .drop:hover{border-color:var(--accent);background:rgba(80,138,255,.03)}
+    .drop p{color:var(--muted);font-size:12.5px}
+    
+    /* Toast */
+    .toast-container{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:7px}
+    .toast{padding:10px 16px;border-radius:7px;font-size:12.5px;color:#fff;animation:slideIn .25s ease;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:340px}
+    .toast.success{background:#0d9488}.toast.error{background:#dc2626}.toast.info{background:#3b82f6}
+    @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+    
+    /* Empty */
+    .empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px}
+    
+    /* Spinner */
+    .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin:18px auto}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    
+    /* Pagination */
+    .pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border);gap:8px}
+    .pagination .page-info{font-size:12px;color:var(--muted)}
+    .pagination .page-info strong{color:var(--text)}
+    
+    /* Search bar */
+    .search-bar{display:flex;gap:6px;align-items:center}
+    .search-bar input,.search-bar select{padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12.5px;outline:none}
+    .search-bar input{width:180px}.search-bar input:focus,.search-bar select:focus{border-color:var(--accent)}
+    .search-bar select{min-width:120px}
+    
+    /* Confirm */
+    .confirm-box{text-align:center;padding:12px 0}
+    .confirm-box p{font-size:13.5px;color:var(--text);line-height:1.6}
+    
+    /* Tabs */
+    .tabs{display:flex;gap:0;border-bottom:1px solid var(--border)}
+    .tabs button{padding:10px 18px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:12.5px;border-bottom:2px solid transparent;transition:.15s;font-weight:500}
+    .tabs button.active{color:#fff;border-bottom-color:var(--accent)}
+    
+    /* Chart */
+    .chart-wrap{position:relative;height:260px;padding:16px 8px 0}
+    .chart-wrap canvas{width:100%!important}
+    
+    /* System info */
+    .sys-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+    .sys-item{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:12px 14px}
+    .sys-item .k{font-size:10.5px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+    .sys-item .v{font-size:13px;color:#fff;font-weight:600;word-break:break-all}
+    
+    .text-sm{font-size:12px;color:var(--muted)}
+    .flex{display:flex;align-items:center;gap:6px}
+    .bar{border:none;border-radius:0}
+    input[type="checkbox"]{accent-color:var(--accent);width:15px;height:15px}
+  </style>
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Login -->
+  <div id="loginPage" class="login-wrap">
+    <div class="login-box">
+      <div class="logo"><div class="licon">W</div>WaterbearIntl</div>
+      <div id="loginError" class="lerr"></div>
+      <form onsubmit="return doLogin()">
+        <div class="fg"><label>用户名</label><input type="text" id="loginUser" placeholder="admin"></div>
+        <div class="fg"><label>密码</label><input type="password" id="loginPass" placeholder="admin123"></div>
+        <button type="submit" class="btn btn-p" style="width:100%;padding:10px;font-size:13.5px;justify-content:center">登 录</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" style="display:none;width:100%">
+    <aside class="sidebar">
+      <div class="sb-brand"><div class="bicon">W</div><div class="bname">WaterbearIntl</div></div>
+      <div class="nav-label">主菜单</div>
+      <div class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        仪表盘
+      </div>
+      <div class="nav-label">内容管理</div>
+      <div class="nav-item" data-page="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        产品管理
+      </div>
+      <div class="nav-item" data-page="images">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        媒体库
+      </div>
+      <div class="nav-item" data-page="messages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        客户消息 <span id="msgBadge" class="badge" style="display:none">0</span>
+      </div>
+      <div class="nav-label">系统设置</div>
+      <div class="nav-item" data-page="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        站点设置
+      </div>
+      <div class="nav-item" data-page="users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        用户管理
+      </div>
+      <div class="nav-item" data-page="system">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        系统维护
+      </div>
+      <div class="nav-item" data-page="logs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        操作日志
+      </div>
+      <div class="sb-footer">
+        <div class="user" id="navbarUser"></div>
+        <div class="role">管理员</div>
+        <button class="btn btn-o" style="width:100%;justify-content:center;font-size:11.5px" onclick="doLogout()">退出登录</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- Dashboard -->
+      <div id="page-dashboard">
+        <div class="page-header"><div><h2>仪表盘</h2><p class="sub">网站运行概览</p></div><span class="text-sm" id="dashTime"></span></div>
+        <div class="stats" id="statsGrid"></div>
+        <div class="card"><div class="card-hd"><h3>7日趋势</h3></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+        <div class="card"><div class="card-hd"><h3>最近动态</h3></div><div class="card-bd" id="recentActivity"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- Products -->
+      <div id="page-products" style="display:none">
+        <div class="page-header"><div><h2>产品管理</h2><p class="sub">管理产品目录</p></div><div class="flex" style="gap:6px"><button class="btn btn-o btn-sm" id="btnProdSelect" onclick="toggleProductSelect()">批量选择</button><button class="btn btn-d btn-sm" id="btnBatchDel" style="display:none" onclick="batchDeleteProducts()">批量删除</button><button class="btn btn-s btn-sm" id="btnBatchOn" style="display:none" onclick="batchUpdateProducts('active')">批量上架</button><div class="table-export-menu"><button class="btn btn-o btn-sm">导出 <span style="font-size:10px">▼</span></button><div class="menu"><button onclick="exportProducts('csv')">导出 CSV</button><button onclick="exportProducts('excel')">导出 Excel</button><button onclick="exportProducts('json')">导出 JSON</button><button onclick="exportProducts('pdf')">导出 PDF</button></div></div><button class="btn btn-p btn-sm" onclick="openProductModal()">+ 新增</button></div></div>
+        <div class="table-bulk-actions hidden" id="bulkActions">
+          <div style="font-size:12px;color:var(--accent)"><strong id="bulkCount">0</strong> 个产品已选中</div>
+          <div class="flex" style="gap:4px;margin-left:auto">
+            <button class="btn btn-s btn-xs" onclick="batchUpdateProducts('active')">上架</button>
+            <button class="btn btn-o btn-xs" onclick="batchUpdateProducts('draft')">下架</button>
+            <button class="btn btn-a btn-xs" onclick="batchFeatured()">推荐</button>
+            <button class="btn btn-d btn-xs" onclick="batchDeleteProducts()">删除</button>
+            <button class="btn btn-o btn-xs" onclick="clearBulkSelection()">清空</button>
+          </div>
+        </div>
+        <div class="table-filter-bar" id="productFilters">
+          <div class="filter-item active" data-filter="all" onclick="setProductFilter('all')">全部</div>
+          <div class="filter-item" data-filter="active" onclick="setProductFilter('active')">上架中</div>
+          <div class="filter-item" data-filter="draft" onclick="setProductFilter('draft')">草稿</div>
+          <div class="filter-item" data-filter="featured" onclick="setProductFilter('featured')">推荐</div>
+          <div class="filter-item" data-filter="hot" onclick="setProductFilter('hot')">爆款</div>
+          <div class="filter-item" data-filter="new" onclick="setProductFilter('new')">新品</div>
+          <div class="filter-item" data-filter="bestseller" onclick="setProductFilter('bestseller')">热销</div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><h3>产品列表</h3><div class="search-bar"><input type="text" placeholder="搜索名称/SKU/描述..." id="prodSearch" oninput="renderProductTable()"><select id="prodFilter" onchange="renderProductTable()"><option value="all">全部分类</option><option value="machinery">机械设备</option><option value="hardware">五金件</option><option value="industrial">工业配件</option><option value="electronics">电子产品</option><option value="materials">原材料</option></select><select id="prodSort" onchange="renderProductTable()"><option value="newest">最新</option><option value="oldest">最早</option><option value="name">名称 A-Z</option><option value="name_desc">名称 Z-A</option><option value="price_high">价格高到低</option><option value="price_low">价格低到高</option></select></div></div>
+          <div class="card-bd"><table><thead><tr><th class="chk-cell sel-col" style="display:none"><input type="checkbox" id="prodCheckAll" onchange="toggleAllProducts()"></th><th>产品</th><th>分类</th><th>价格</th><th>状态</th><th>标签</th><th>更新时间</th><th>操作</th></tr></thead><tbody id="productsTable"><tr><td colspan="8"><div class="spinner"></div></td></tr></tbody></table></div>
+          <div class="pagination"><span class="page-info">共 <strong id="prodTotal">0</strong> 条</span><div style="display:flex;gap:4px"><button class="btn btn-o btn-xs" onclick="changeProductPage(-1)" id="prevPage" disabled>上一页</button><button class="btn btn-o btn-xs" onclick="changeProductPage(1)" id="nextPage" disabled>下一页</button></div></div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="page-messages" style="display:none">
+        <div class="page-header"><div><h2>客户消息</h2><p class="sub">联系表单提交记录</p></div><div class="flex" style="gap:6px"><button class="btn btn-o btn-sm" onclick="exportMessages()">导出 CSV</button></div></div>
+        <div class="card"><div class="card-bd"><table><thead><tr><th>姓名</th><th>邮箱</th><th>主题</th><th>公司</th><th>时间</th><th>状态</th><th>操作</th></tr></thead><tbody id="messagesTable"><tr><td colspan="7"><div class="spinner"></div></td></tr></tbody></table></div></div>
+        <div id="messageDetail" style="display:none" class="card"><div class="card-hd"><h3 id="msgDetailTitle">消息详情</h3><div class="tools"><button class="btn btn-p btn-xs" id="btnReplyMsg" onclick="replyMessage()">回复邮件</button></div></div><div class="card-bd card-pad" id="msgDetailBody"></div></div>
+      </div>
+
+      <!-- Media -->
+      <div id="page-images" style="display:none">
+        <div class="page-header"><div><h2>媒体库</h2><p class="sub">上传和管理图片资源</p></div><div class="flex" style="gap:6px"><button class="btn btn-o btn-sm" id="btnImgSelect" onclick="toggleImageSelect()">批量选择</button><button class="btn btn-d btn-sm" id="btnImgBatchDel" style="display:none" onclick="batchDeleteImages()">批量删除</button><button class="btn btn-p btn-sm" onclick="document.getElementById('uploadInput').click()">上传图片</button><input type="file" id="uploadInput" accept="image/*" multiple style="display:none" onchange="handleUpload(this)"></div></div>
+        <div class="drop" id="dropZone"><p>拖拽图片到此处上传（支持多选）</p></div>
+        <div class="img-search"><input type="text" placeholder="搜索文件名..." id="imgSearch" oninput="renderImageGrid()"><button class="btn btn-o btn-sm" onclick="document.getElementById('dropZone').classList.toggle('active')">拖拽区</button></div>
+        <div class="img-grid" id="imagesGrid"></div>
+      </div>
+
+      <!-- Settings -->
+      <div id="page-settings" style="display:none">
+        <div class="page-header"><div><h2>站点设置</h2><p class="sub">配置网站基本信息</p></div></div>
+        <div class="tabs" id="settingsTabs">
+          <button class="active" data-tab="general">基本设置</button>
+          <button data-tab="banner">首页海报</button>
+          <button data-tab="seo">SEO 优化</button>
+          <button data-tab="social">社交媒体</button>
+          <button data-tab="smtp">邮件服务</button>
+        </div>
+        <div class="card bar">
+          <div class="card-bd card-pad">
+            <form onsubmit="return saveSettings()">
+              <div id="tab-general">
+                <div class="form-row"><div class="fg"><label>网站标题</label><input type="text" id="setTitle"></div><div class="fg"><label>联系邮箱</label><input type="email" id="setEmail"></div></div>
+                <div class="fg"><label>网站描述</label><textarea id="setDesc" rows="2"></textarea></div>
+                <div class="form-row"><div class="fg"><label>联系电话</label><input type="text" id="setPhone"></div><div class="fg"><label>公司地址</label><input type="text" id="setAddr"></div></div>
+                <div class="fg"><label>页脚文案</label><input type="text" id="setFooter"></div>
+              </div>
+              <div id="tab-banner" style="display:none">
+                <div class="fg"><label>首页海报图</label>
+                  <div style="display:flex;gap:14px;align-items:flex-start">
+                    <div id="bannerPreview" style="width:240px;height:135px;background:var(--bg);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                      <span style="color:var(--muted);font-size:12px">暂无海报</span>
+                    </div>
+                    <div>
+                      <input type="hidden" id="setBanner">
+                      <button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('bannerUpload').click()" style="margin-bottom:8px">选择图片上传</button>
+                      <input type="file" id="bannerUpload" accept="image/*" style="display:none" onchange="handleBannerUpload(this)">
+                      <button type="button" class="btn btn-d btn-xs" onclick="clearBanner()">清除</button>
+                      <p class="text-sm" style="margin-top:8px">或手动输入路径：</p>
+                      <input type="text" id="bannerPath" placeholder="/images/banner/hero.jpg" style="margin-top:4px;padding:5px 8px;font-size:11.5px;width:200px" oninput="updateBannerPreview(this.value)">
+                      <p class="text-sm" style="margin-top:10px;line-height:1.6">推荐尺寸 1920×1080 或 16:9 比例<br>此海报将显示在网站首页顶部</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="fg" style="margin-top:14px"><label>首页标语文字</label><input type="text" id="setBannerTitle" placeholder="Your Trusted Industrial Partner"></div>
+                <div class="fg"><label>首页副标语</label><input type="text" id="setBannerSubtitle" placeholder="Premium quality machinery & hardware for your business"></div>
+              </div>
+              <div id="tab-seo" style="display:none">
+                <div class="fg"><label>SEO 关键词（逗号分隔）</label><input type="text" id="setSeoKw" placeholder="industrial B2B, machinery, hardware"></div>
+                <div class="fg"><label>SEO 描述（Meta Description）</label><textarea id="setSeoDesc" rows="3" placeholder="用于搜索引擎结果页面的网站描述"></textarea></div>
+              </div>
+              <div id="tab-social" style="display:none">
+                <div class="form-row"><div class="fg"><label>Facebook</label><input type="text" id="setSocFb" placeholder="https://facebook.com/..."></div><div class="fg"><label>LinkedIn</label><input type="text" id="setSocLi" placeholder="https://linkedin.com/..."></div></div>
+                <div class="form-row"><div class="fg"><label>YouTube</label><input type="text" id="setSocYt" placeholder="https://youtube.com/..."></div><div class="fg"><label>Twitter / X</label><input type="text" id="setSocTw" placeholder="https://twitter.com/..."></div></div>
+              </div>
+              <div id="tab-smtp" style="display:none">
+                <div class="form-row"><div class="fg"><label>SMTP 服务器</label><input type="text" id="setSmtpHost" placeholder="smtp.gmail.com"></div><div class="fg"><label>端口</label><input type="text" id="setSmtpPort" placeholder="587"></div></div>
+                <div class="form-row"><div class="fg"><label>发件邮箱</label><input type="email" id="setSmtpUser"></div><div class="fg"><label>密码/授权码</label><input type="password" id="setSmtpPass"></div></div>
+                <div class="fg"><label>发件人名称</label><input type="text" id="setSmtpFrom" placeholder="WaterbearIntl"></div>
+              </div>
+              <button type="submit" class="btn btn-p" style="margin-top:12px">保存设置</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users -->
+      <div id="page-users" style="display:none">
+        <div class="page-header"><div><h2>用户管理</h2><p class="sub">管理系统管理员账号</p></div><button class="btn btn-p btn-sm" onclick="openUserModal()">+ 新增用户</button></div>
+        <div class="card"><div class="card-bd"><table><thead><tr><th>用户名</th><th>角色</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="usersTable"><tr><td colspan="4"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- System -->
+      <div id="page-system" style="display:none">
+        <div class="page-header"><div><h2>系统维护</h2><p class="sub">备份恢复 & 系统状态</p></div></div>
+        <div class="card"><div class="card-hd"><h3>数据备份</h3><div class="tools"><button class="btn btn-p btn-sm" onclick="downloadBackup()">下载备份</button><button class="btn btn-o btn-sm" onclick="document.getElementById('restoreInput').click()">恢复备份</button><input type="file" id="restoreInput" accept=".json" style="display:none" onchange="handleRestore(this)"></div></div><div class="card-bd card-pad"><p class="text-sm">下载完整的 JSON 备份文件以保存所有产品、用户、设置和消息数据。恢复时系统会自动创建安全快照。</p></div></div>
+        <div class="card"><div class="card-hd"><h3>系统信息</h3></div><div class="card-bd card-pad"><div class="sys-grid" id="sysInfo"><div class="spinner" style="grid-column:1/-1"></div></div></div></div>
+      </div>
+
+      <!-- Logs -->
+      <div id="page-logs" style="display:none">
+        <div class="page-header"><div><h2>操作日志</h2><p class="sub">系统审计记录</p></div><button class="btn btn-o btn-sm" onclick="loadLogs(currentLogPage)">刷新</button></div>
+        <div class="card"><div class="card-bd"><table><thead><tr><th>时间</th><th>操作</th><th>详情</th></tr></thead><tbody id="logsTable"><tr><td colspan="3"><div class="spinner"></div></td></tr></tbody></table></div>
+        <div class="pagination" id="logsPagination"></div></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal-overlay" id="productModal">
+    <div class="modal"><h3 id="productModalTitle">新增产品</h3>
+      <form onsubmit="return saveProduct()">
+        <input type="hidden" id="prodId">
+        <div class="form-row"><div class="fg"><label>产品名称 *</label><input type="text" id="prodName" required></div><div class="fg"><label>SKU 编号</label><input type="text" id="prodSku"></div></div>
+        <div class="form-row"><div class="fg"><label>分类</label><select id="prodCategory"><option value="machinery">机械设备</option><option value="hardware">五金件</option><option value="industrial">工业配件</option><option value="electronics">电子产品</option><option value="materials">原材料</option></select></div><div class="fg"><label>标签</label><select id="prodTag"><option value="">无</option><option value="bestseller">热销</option><option value="hot">爆款</option><option value="new">新品</option></select></div></div>
+        <div class="fg"><label>描述</label><textarea id="prodDesc" rows="3"></textarea></div>
+        <div class="fg"><label>产品图片</label>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <div id="prodImgPreview" style="width:120px;height:90px;background:var(--bg);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+              <span style="color:var(--muted);font-size:11px">暂无图片</span>
+            </div>
+            <div style="flex:1">
+              <input type="hidden" id="prodImage">
+              <button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('prodImgUpload').click()" style="margin-bottom:6px">选择图片</button>
+              <input type="file" id="prodImgUpload" accept="image/*" style="display:none" onchange="handleProdImageUpload(this)">
+              <button type="button" class="btn btn-d btn-xs" onclick="clearProdImage()" id="btnClearProdImg" style="display:none">清除</button>
+              <p class="text-sm" style="margin-top:4px">或手动输入路径：</p>
+              <input type="text" id="prodImagePath" placeholder="/images/products/xxx.jpg" style="margin-top:4px;padding:5px 8px;font-size:11.5px" oninput="updateProdImgPreview(this.value)">
+            </div>
+          </div>
+        </div>
+        <div class="form-row"><div class="fg"><label>价格/报价</label><input type="text" id="prodPrice"></div><div class="fg"><label>状态</label><select id="prodStatus"><option value="active">上架</option><option value="draft">草稿</option></select></div></div>
+        <div class="fg"><label>首页推荐</label><select id="prodFeatured"><option value="false">否</option><option value="true">是</option></select></div>
+        <div class="modal-ft"><button type="button" class="btn btn-o" onclick="closeModal('productModal')">取消</button><button type="submit" class="btn btn-p">保存</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Image Preview Modal -->
+  <div class="modal-overlay" id="imgPreviewModal">
+    <div class="modal" style="max-width:700px"><div class="img-preview"><img id="imgPreviewImg" src="" alt=""><div class="meta" id="imgPreviewMeta"></div></div><div class="modal-ft"><button class="btn btn-o btn-sm" onclick="copyImgPath(window._previewPath)">复制路径</button><button class="btn btn-d btn-sm" id="btnDelPreview" onclick="">删除</button><button class="btn btn-o" onclick="closeModal('imgPreviewModal')">关闭</button></div></div>
+  </div>
+
+  <!-- User Modal -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal" style="max-width:420px"><h3 id="userModalTitle">新增用户</h3>
+      <form onsubmit="return saveUser()">
+        <input type="hidden" id="userId">
+        <div class="fg"><label>用户名 *</label><input type="text" id="userName" required></div>
+        <div class="fg"><label>密码 *</label><input type="password" id="userPass" required></div>
+        <div class="fg"><label>角色</label><select id="userRole"><option value="admin">管理员</option><option value="editor">编辑</option></select></div>
+        <div class="modal-ft"><button type="button" class="btn btn-o" onclick="closeModal('userModal')">取消</button><button type="submit" class="btn btn-p">保存</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width:380px"><div class="confirm-box"><p id="confirmMsg"></p></div><div class="modal-ft" style="justify-content:center"><button class="btn btn-o" onclick="_confirmCancel()">取消</button><button class="btn btn-d" id="confirmOkBtn">确认</button></div></div>
+  </div>
+
+<script>
+// ============== Globals ==============
+const API = '';
+let TOKEN = '', __products = [], __images = [], __messages = [];
+let __prodSelectMode = false, __imgSelectMode = false;
+let currentLogPage = 1, trendChart = null, __confirmCb = null;
+
+// ============== Toast ==============
+function toast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const d = document.createElement('div');
+  d.className = 'toast '+type; d.textContent = msg; c.appendChild(d);
+  setTimeout(()=>{d.style.opacity='0';d.style.transition='opacity .3s';setTimeout(()=>d.remove(),300)},2500);
+}
+
+// ============== Confirm ==============
+function confirmAction(msg, cb, btnText='确认删除') {
+  __confirmCb = cb;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmOkBtn').textContent = btnText;
+  document.getElementById('confirmModal').classList.add('show');
+  document.getElementById('confirmOkBtn').focus();
+}
+window._confirmCancel = function(){
+  document.getElementById('confirmModal').classList.remove('show'); __confirmCb = null;
+};
+document.getElementById('confirmOkBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmModal').classList.remove('show');
+  if(__confirmCb){__confirmCb();__confirmCb=null}
+});
+
+// ============== Auth ==============
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  const err = document.getElementById('loginError'); err.style.display='none';
+  if(!u||!p){err.textContent='请输入用户名和密码';err.style.display='block';return false}
+  fetch(API+'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})})
+  .then(r=>r.json()).then(d=>{
+    if(d.error){err.textContent=d.error;err.style.display='block';return}
+    TOKEN=d.token;localStorage.setItem('wb_token',TOKEN);localStorage.setItem('wb_user',JSON.stringify(d.user));showAdmin();
+  }).catch(()=>{err.textContent='无法连接服务器，请确认 server.js 已启动';err.style.display='block'});
+  return false;
+}
+
+function doLogout(){TOKEN='';localStorage.removeItem('wb_token');localStorage.removeItem('wb_user');document.getElementById('loginPage').style.display='flex';document.getElementById('adminPanel').style.display='none';}
+
+function showAdmin(){
+  document.getElementById('loginPage').style.display='none';document.getElementById('adminPanel').style.display='flex';
+  document.getElementById('navbarUser').textContent=(JSON.parse(localStorage.getItem('wb_user')||'{}')).username||'';
+  document.getElementById('dashTime').textContent=new Date().toLocaleString('zh-CN');
+  loadDashboard();
+}
+
+// ============== API ==============
+function api(method,path,body){
+  const opts={method,headers:{'Content-Type':'application/json'}};
+  if(TOKEN)opts.headers['Authorization']='Bearer '+TOKEN;
+  if(body)opts.body=JSON.stringify(body);
+  return fetch(API+path,opts).then(r=>r.json());
+}
+function apiRaw(method,path,body){
+  const opts={method,headers:{'Authorization':'Bearer '+TOKEN}};
+  if(body)opts.body=body;
+  return fetch(API+path,opts).then(r=>r.json());
+}
+
+// ============== Navigation ==============
+function navTo(page){
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+  document.querySelectorAll('[id^="page-"]').forEach(p=>p.style.display='none');
+  const pg=document.getElementById('page-'+page);if(pg)pg.style.display='block';
+  document.getElementById('btnBatchDel').style.display='none';
+  document.getElementById('btnBatchOn').style.display='none';
+  document.getElementById('btnProdSelect').textContent='批量选择';
+  __prodSelectMode=false;
+  const loaders={
+    dashboard:loadDashboard, products:()=>{loadProducts();document.getElementById('prodSearch').value='';document.getElementById('prodFilter').value='all'},
+    messages:loadMessages, images:loadImages, settings:loadSettings, users:loadUsers,
+    system:loadSystemInfo, logs:()=>loadLogs(1)
+  };
+  if(loaders[page])loaders[page]();
+}
+document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',()=>navTo(item.dataset.page))});
+
+// ============== Dashboard ==============
+function loadDashboard(){
+  api('GET','/api/dashboard').then(d=>{
+    if(d.error)return;
+    document.getElementById('statsGrid').innerHTML=`
+      <div class="stat" onclick="navTo('products')"><div><div class="s-num">${d.products||0}</div><div class="s-label">产品数量</div></div><div class="s-icon blue">P</div></div>
+      <div class="stat" onclick="navTo('products')"><div><div class="s-num">${d.categories||0}</div><div class="s-label">产品分类</div></div><div class="s-icon green">C</div></div>
+      <div class="stat" onclick="navTo('messages')"><div><div class="s-num">${d.messages||0}</div><div class="s-label">客户消息</div></div><div class="s-icon amber">M</div></div>
+      <div class="stat" onclick="navTo('images')"><div><div class="s-num">${d.images||0}</div><div class="s-label">媒体文件</div></div><div class="s-icon blue">I</div></div>
+      <div class="stat" onclick="navTo('users')"><div><div class="s-num">${d.users||0}</div><div class="s-label">管理员</div></div><div class="s-icon green">U</div></div>`;
+  });
+  api('GET','/api/stats/trends').then(d=>{
+    if(d.error||!d.length)return;
+    const ctx=document.getElementById('trendChart').getContext('2d');
+    if(trendChart)trendChart.destroy();
+    trendChart=new Chart(ctx,{
+      type:'bar',data:{
+        labels:d.map(x=>x.date),
+        datasets:[
+          {label:'产品操作',data:d.map(x=>x.productOps),backgroundColor:'rgba(80,138,255,.6)',borderRadius:4},
+          {label:'新消息',data:d.map(x=>x.messages),backgroundColor:'rgba(245,158,11,.6)',borderRadius:4},
+          {label:'上传',data:d.map(x=>x.uploads),backgroundColor:'rgba(34,197,94,.6)',borderRadius:4}
+        ]
+      },options:{
+        responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#c0c5d4',font:{size:11},usePointStyle:true}}},
+        scales:{x:{ticks:{color:'#5b6080',font:{size:10}},grid:{color:'rgba(26,29,42,.5)'}},y:{ticks:{color:'#5b6080',font:{size:10},stepSize:1},grid:{color:'rgba(26,29,42,.5)'},beginAtZero:true}}
+      }
+    });
+  });
+  api('GET','/api/logs?page=1').then(d=>{
+    const el=document.getElementById('recentActivity');
+    if(d.error||!d.data||!d.data.length){el.innerHTML='<div class="empty">暂无操作记录</div>';return}
+    el.innerHTML='<table>'+d.data.slice(0,8).map(l=>`<tr><td style="width:160px">${new Date(l.time).toLocaleString('zh-CN')}</td><td style="width:130px">${logLabel(l.action)}</td><td class="text-sm">${JSON.stringify(l.detail).substring(0,50)}</td></tr>`).join('')+'</table>';
+  });
+}
+
+// ============== Products ==============
+let __productPage = 1, __productPageSize = 15, __productFilter = 'all';
+function loadProducts(){ api('GET','/api/products').then(d=>{__products=Array.isArray(d)?d:[];__productPage=1;renderProductTable()}); }
+
+function setProductFilter(f){
+  __productFilter=f;__productPage=1;
+  document.querySelectorAll('#productFilters .filter-item').forEach(el=>el.classList.remove('active'));
+  document.querySelector(`#productFilters .filter-item[data-filter="${f}"]`)?.classList.add('active');
+  renderProductTable();
+}
+
+function changeProductPage(delta){
+  const total=__productPageSize;const maxPage=Math.ceil(getFilteredProducts().length/total)||1;
+  __productPage=Math.max(1,Math.min(maxPage,__productPage+delta));
+  renderProductTable();
+}
+
+function getFilteredProducts(){
+  const search=(document.getElementById('prodSearch')?.value||'').toLowerCase();
+  const filter=document.getElementById('prodFilter')?.value||'all';
+  const sort=document.getElementById('prodSort')?.value||'newest';
+  let list=__products;
+  // search
+  if(search)list=list.filter(p=>(p.title||p.name||'').toLowerCase().includes(search)||(p.sku||'').toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
+  // category
+  if(filter!=='all')list=list.filter(p=>p.category===filter);
+  // quick filter
+  if(__productFilter==='active')list=list.filter(p=>p.status==='active');
+  else if(__productFilter==='draft')list=list.filter(p=>p.status==='draft');
+  else if(__productFilter==='featured')list=list.filter(p=>p.featured);
+  else if(__productFilter==='hot')list=list.filter(p=>p.tag==='hot');
+  else if(__productFilter==='new')list=list.filter(p=>p.tag==='new');
+  else if(__productFilter==='bestseller')list=list.filter(p=>p.tag==='bestseller');
+  // sort
+  if(sort==='newest')list.sort((a,b)=>new Date(b.updatedAt||b.createdAt||0)-new Date(a.updatedAt||a.createdAt||0));
+  else if(sort==='oldest')list.sort((a,b)=>new Date(a.updatedAt||a.createdAt||0)-new Date(b.updatedAt||b.createdAt||0));
+  else if(sort==='name')list.sort((a,b)=>(a.title||a.name||'').localeCompare(b.title||b.name||''));
+  else if(sort==='name_desc')list.sort((a,b)=>(b.title||b.name||'').localeCompare(a.title||a.name||''));
+  else if(sort==='price_high')list.sort((a,b)=>(parseFloat(b.price)||0)-(parseFloat(a.price)||0));
+  else if(sort==='price_low')list.sort((a,b)=>(parseFloat(a.price)||0)-(parseFloat(b.price)||0));
+  return list;
+}
+
+function renderProductTable(){
+  const list=getFilteredProducts();
+  const total=list.length;
+  const start=(__productPage-1)*__productPageSize;
+  const page=list.slice(start,start+__productPageSize);
+  const maxPage=Math.ceil(total/__productPageSize)||1;
+  document.getElementById('prodTotal').textContent=total;
+  document.getElementById('prevPage').disabled=__productPage<=1;
+  document.getElementById('nextPage').disabled=__productPage>=maxPage;
+
+  const catLabels={machinery:'机械设备',hardware:'五金件',industrial:'工业配件',electronics:'电子产品',materials:'原材料'};
+  const tagLabels={bestseller:'热销',hot:'爆款',new:'新品'};
+  const tagClasses={bestseller:'best',hot:'hot',new:'new'};
+  
+  const tbody=document.getElementById('productsTable');
+  if(!page.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty">暂无产品</div></td></tr>`;return}
+  
+  tbody.innerHTML=page.map(p=>{
+    const imgHtml=p.image?`<img src="${p.image}" class="table-img" onerror="this.style.display='none'" loading="lazy">`:'';
+    const statusHtml=p.status==='active'
+      ?'<span class="table-status on">● 上架</span>'
+      :'<span class="table-status off">○ 草稿</span>';
+    const tagHtml=p.tag?`<span class="table-tag ${tagClasses[p.tag]||''}">${tagLabels[p.tag]||p.tag}</span>`:'-';
+    const featBadge=p.featured?'<span class="table-status featured">★ 推荐</span>':'';
+    const priceHtml=p.price?`<span class="table-price">$${parseFloat(p.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`:'<span style="color:var(--muted)">询价</span>';
+    const dateStr=p.updatedAt?new Date(p.updatedAt).toLocaleDateString('zh-CN'):'-';
+    return `<tr>
+      <td class="chk-cell sel-col" style="display:${__prodSelectMode?'':'none'}"><input type="checkbox" class="prod-chk" data-id="${p.id}" onchange="updateBulkBar()"></td>
+      <td style="display:flex;align-items:center;gap:10px">${imgHtml}<div><strong>${esc(p.title||p.name||'未命名')}</strong>${featBadge?` ${featBadge}`:''}<br><span style="font-size:10px;color:var(--muted)">SKU: ${esc(p.sku||'-')}</span></div></td>
+      <td>${catLabels[p.category]||p.category||'-'}</td>
+      <td>${priceHtml}</td>
+      <td>${statusHtml}</td>
+      <td>${tagHtml}</td>
+      <td class="text-sm">${dateStr}</td>
+      <td>
+        <div class="table-actions">
+          <button class="btn btn-o btn-xs" onclick='editProduct(${JSON.stringify(p).replace(/'/g,"&#39;")})'>编辑</button>
+          <div class="table-actions-dropdown">
+            <button class="btn btn-o btn-xs">更多 ▾</button>
+            <div class="dropdown">
+              <button onclick='editProduct(${JSON.stringify(p).replace(/'/g,"&#39;")})'>编辑</button>
+              <button onclick='toggleFeatured(${p.id})'>${p.featured?'取消推荐':'推荐'}</button>
+              <button onclick='duplicateProduct(${p.id})'>复制</button>
+              <button class="del" onclick='deleteProduct(${p.id})'>删除</button>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  document.querySelectorAll('.sel-col').forEach(c=>c.style.display=__prodSelectMode?'':'none');
+  updateBulkBar();
+}
+
+function updateBulkBar(){
+  const count=document.querySelectorAll('.prod-chk:checked').length;
+  const bar=document.getElementById('bulkActions');
+  document.getElementById('bulkCount').textContent=count;
+  bar.classList.toggle('hidden',count===0);
+}
+
+function clearBulkSelection(){
+  document.querySelectorAll('.prod-chk').forEach(c=>c.checked=false);
+  document.getElementById('prodCheckAll').checked=false;
+  updateBulkBar();
+}
+
+function toggleProductSelect(){
+  __prodSelectMode=!__prodSelectMode;
+  document.getElementById('btnProdSelect').textContent=__prodSelectMode?'取消选择':'批量选择';
+  document.getElementById('btnBatchDel').style.display=__prodSelectMode?'':'none';
+  document.getElementById('btnBatchOn').style.display=__prodSelectMode?'':'none';
+  if(!__prodSelectMode){document.getElementById('prodCheckAll').checked=false;clearBulkSelection()}
+  renderProductTable();
+}
+function toggleAllProducts(){const c=document.getElementById('prodCheckAll').checked;document.querySelectorAll('.prod-chk').forEach(b=>{b.checked=c});updateBulkBar()}
+function getSelectedProducts(){return [...document.querySelectorAll('.prod-chk:checked')].map(b=>parseInt(b.dataset.id))}
+function batchDeleteProducts(){
+  const ids=getSelectedProducts();if(!ids.length){toast('请选择产品','info');return}
+  confirmAction(`确认删除选中的 ${ids.length} 个产品？`,()=>{api('POST','/api/products/batch',{action:'delete',ids}).then(d=>{if(d.error){toast(d.error,'error');return}loadProducts();__prodSelectMode=false;document.getElementById('btnProdSelect').textContent='批量选择';document.getElementById('btnBatchDel').style.display='none';document.getElementById('btnBatchOn').style.display='none';document.getElementById('bulkActions').classList.add('hidden');toast(`已删除 ${d.count} 个产品`,'success')})});
+}
+function batchUpdateProducts(status){
+  const ids=getSelectedProducts();if(!ids.length){toast('请选择产品','info');return}
+  api('POST','/api/products/batch',{action:'update',ids,data:{status}}).then(d=>{if(d.error){toast(d.error,'error');return}loadProducts();toast(`已${status==='active'?'上架':'下架'} ${d.count} 个产品`,'success')});
+}
+function batchFeatured(){
+  const ids=getSelectedProducts();if(!ids.length){toast('请选择产品','info');return}
+  api('POST','/api/products/batch',{action:'featured',ids}).then(d=>{if(d.error){toast(d.error,'error');return}loadProducts();toast(`已切换推荐状态`,'success')});
+}
+function toggleFeatured(id){api('POST','/api/products/batch',{action:'featured',ids:[id]}).then(()=>loadProducts())}
+
+function duplicateProduct(id){
+  const p=__products.find(x=>x.id===id);if(!p){toast('产品不存在','error');return}
+  const copy={...p};delete copy.id;copy.title=(copy.title||copy.name||'')+' (副本)';copy.name=copy.title;copy.createdAt=new Date().toISOString();copy.updatedAt=new Date().toISOString();
+  api('POST','/api/products',copy).then(d=>{if(d.error){toast(d.error,'error');return}loadProducts();toast('已复制','success')});
+}
+
+function openProductModal(){
+  document.getElementById('productModalTitle').textContent='新增产品';
+  document.getElementById('prodId').value='';['prodName','prodSku','prodDesc','prodImage','prodImagePath','prodPrice'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('prodCategory').value='machinery';document.getElementById('prodTag').value='';
+  document.getElementById('prodStatus').value='active';document.getElementById('prodFeatured').value='false';
+  clearProdImage();
+  document.getElementById('prodImgUpload').value='';
+  document.getElementById('productModal').classList.add('show');
+}
+function editProduct(p){
+  document.getElementById('productModalTitle').textContent='编辑产品';
+  document.getElementById('prodId').value=p.id;document.getElementById('prodName').value=p.title||p.name||'';
+  document.getElementById('prodSku').value=p.sku||'';document.getElementById('prodCategory').value=p.category||'machinery';
+  document.getElementById('prodTag').value=p.tag||'';document.getElementById('prodDesc').value=p.description||'';
+  document.getElementById('prodImage').value=p.image||'';document.getElementById('prodImagePath').value=p.image||'';
+  document.getElementById('prodPrice').value=p.price||'';
+  document.getElementById('prodStatus').value=p.status||'active';document.getElementById('prodFeatured').value=p.featured?'true':'false';
+  updateProdImgPreview(p.image||'');
+  document.getElementById('prodImgUpload').value='';
+  document.getElementById('productModal').classList.add('show');
+}
+function saveProduct(){
+  const id=document.getElementById('prodId').value;
+  const body={title:document.getElementById('prodName').value.trim(),name:document.getElementById('prodName').value.trim(),sku:document.getElementById('prodSku').value.trim(),category:document.getElementById('prodCategory').value,tag:document.getElementById('prodTag').value,description:document.getElementById('prodDesc').value.trim(),image:document.getElementById('prodImage').value.trim(),price:document.getElementById('prodPrice').value.trim(),status:document.getElementById('prodStatus').value,featured:document.getElementById('prodFeatured').value==='true'};
+  if(!body.title){toast('请输入产品名称','error');return false}
+  const method=id?'PUT':'POST',path=id?`/api/products/${id}`:'/api/products';
+  api(method,path,body).then(d=>{if(d.error){toast(d.error,'error');return}closeModal('productModal');loadProducts();toast(id?'已更新':'已创建','success')});
+  return false;
+}
+function deleteProduct(id){confirmAction('确认删除该产品？',()=>{api('DELETE','/api/products/'+id).then(d=>{if(d.error){toast(d.error,'error');return}loadProducts();toast('已删除','success')})})}
+function exportProducts(format){
+  const list=getFilteredProducts();
+  if(!list.length){toast('没有可导出的产品','info');return}
+  if(format==='csv'||!format){
+    const csv='\uFEFF名称,分类,SKU,标签,状态,推荐,价格,图片,描述\n'+list.map(p=>`"${p.title||p.name||''}","${p.category||''}","${p.sku||''}","${p.tag||''}","${p.status||''}","${p.featured?'是':'否'}","${p.price||''}","${p.image||''}","${(p.description||'').replace(/"/g,'""')}"`).join('\n');
+    downloadBlob(csv,'products.csv','text/csv;charset=utf-8');
+  } else if(format==='excel'){
+    let html='<table><tr><th>名称</th><th>分类</th><th>SKU</th><th>标签</th><th>状态</th><th>推荐</th><th>价格</th><th>图片</th><th>描述</th></tr>';
+    html+=list.map(p=>`<tr><td>${p.title||p.name||''}</td><td>${p.category||''}</td><td>${p.sku||''}</td><td>${p.tag||''}</td><td>${p.status||''}</td><td>${p.featured?'是':'否'}</td><td>${p.price||''}</td><td>${p.image||''}</td><td>${p.description||''}</td></tr>`).join('');
+    html+='</table>';
+    downloadBlob(html,'products.xls','application/vnd.ms-excel');
+  } else if(format==='json'){
+    downloadBlob(JSON.stringify(list,null,2),'products.json','application/json');
+  } else if(format==='pdf'){
+    const html=`
+      <html><head><meta charset="utf-8"><style>body{font-family:'Microsoft YaHei',sans-serif;padding:20px}h2{text-align:center}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px}th{background:#f0f0f0}</style></head><body>
+      <h2>WaterbearIntl - 产品列表</h2>
+      <table><tr><th>名称</th><th>分类</th><th>SKU</th><th>标签</th><th>状态</th><th>价格</th></tr>
+      ${list.map(p=>`<tr><td>${p.title||p.name||''}</td><td>${p.category||''}</td><td>${p.sku||''}</td><td>${p.tag||''}</td><td>${p.status||''}</td><td>${p.price||''}</td></tr>`).join('')}
+      </table></body></html>`;
+    downloadBlob(html,'products.html','text/html');
+    toast('已导出为HTML（可用浏览器打印为PDF）','success');
+    return;
+  }
+  toast('导出成功','success');
+}
+
+// ============== Messages ==============
+function loadMessages(){
+  api('GET','/api/messages').then(d=>{
+    __messages=Array.isArray(d)?d:[];
+    const unread=__messages.filter(m=>!m.read).length;
+    const badge=document.getElementById('msgBadge');badge.style.display=unread?'inline-block':'none';badge.textContent=unread;
+    const tbody=document.getElementById('messagesTable');
+    if(!__messages.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty">暂无客户消息</div></td></tr>';return}
+    tbody.innerHTML=__messages.map(m=>`
+      <tr style="${m.read?'':'font-weight:600'}"><td>${m.read?'':'● '}${esc(m.name||'匿名')}</td><td>${esc(m.email||'-')}</td><td>${esc(m.subject||'-')}</td><td class="text-sm">${esc(m.company||'-')}</td><td class="text-sm">${new Date(m.createdAt).toLocaleDateString('zh-CN')}</td>
+      <td>${m.read?'<span class="tag tag-on">已读</span>':'<span class="tag tag-new">未读</span>'}</td>
+      <td><div class="flex" style="gap:3px"><button class="btn btn-o btn-xs" onclick='viewMessage(${JSON.stringify(m).replace(/'/g,"&#39;")})'>查看</button><button class="btn btn-d btn-xs" onclick='deleteMessage(${m.id})'>删除</button></div></td></tr>`).join('');
+  });
+}
+let _curMsg = null;
+function viewMessage(m){
+  _curMsg = m;
+  if(!m.read)api('PUT','/api/messages/'+m.id,{read:true}).then(()=>loadMessages());
+  const el=document.getElementById('messageDetail');el.style.display='block';
+  document.getElementById('msgDetailTitle').textContent=m.subject||'客户消息';
+  document.getElementById('btnReplyMsg').style.display=m.email?'':'none';
+  const subjMap={product:'产品询价',odm:'OEM/ODM定制',partner:'合作咨询',other:'其他'};
+  document.getElementById('msgDetailBody').innerHTML=`
+    <div style="display:grid;grid-template-columns:70px 1fr;gap:8px;font-size:12.5px">
+      <div class="text-muted">姓名</div><div><strong>${esc(m.name||'-')}</strong></div>
+      <div class="text-muted">邮箱</div><div>${esc(m.email||'-')}</div>
+      <div class="text-muted">电话</div><div>${esc(m.phone||'-')}</div>
+      <div class="text-muted">公司</div><div>${esc(m.company||'-')}</div>
+      <div class="text-muted">国家</div><div>${esc(m.country||'-')}</div>
+      <div class="text-muted">主题</div><div>${subjMap[m.subject]||m.subject||'-'}</div>
+      <div class="text-muted">时间</div><div>${new Date(m.createdAt).toLocaleString('zh-CN')}</div>
+    </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);white-space:pre-wrap;line-height:1.7;font-size:13px">${esc(m.message||'无内容')}</div>`;
+  el.scrollIntoView({behavior:'smooth'});
+}
+function replyMessage(){
+  if(!_curMsg||!_curMsg.email){toast('无法获取邮箱地址','error');return}
+  window.open(`mailto:${_curMsg.email}?subject=Re: ${encodeURIComponent(_curMsg.subject||'Inquiry')}&body=${encodeURIComponent('Dear ' + (_curMsg.name||'') + ',\n\nThank you for your inquiry.\n\nBest regards,\nWaterbearIntl Team')}`);
+}
+function deleteMessage(id){confirmAction('确认删除这条消息？',()=>{api('DELETE','/api/messages/'+id).then(()=>{loadMessages();document.getElementById('messageDetail').style.display='none';toast('已删除','success')})})}
+function exportMessages(){
+  if(!__messages.length){toast('没有可导出的消息','info');return}
+  const csv='\uFEFF姓名,邮箱,电话,公司,国家,主题,内容,时间,状态\n'+__messages.map(m=>`"${m.name||''}","${m.email||''}","${m.phone||''}","${m.company||''}","${m.country||''}","${m.subject||''}","${(m.message||'').replace(/"/g,'""')}","${m.createdAt||''}","${m.read?'已读':'未读'}"`).join('\n');
+  downloadBlob(csv,'messages.csv','text/csv;charset=utf-8');toast('导出成功','success');
+}
+
+// ============== Images ==============
+function loadImages(){api('GET','/api/images').then(d=>{__images=Array.isArray(d)?d:[];renderImageGrid()})}
+function renderImageGrid(){
+  const grid=document.getElementById('imagesGrid');
+  const search=(document.getElementById('imgSearch')?.value||'').toLowerCase();
+  let list=__images;if(search)list=list.filter(i=>(i.originalname||'').toLowerCase().includes(search)||(i.filename||'').toLowerCase().includes(search));
+  if(!list.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1">暂无图片</div>';return}
+  grid.innerHTML=list.map(img=>`
+    <div class="img-card${window._imgSel&&window._imgSel.has(img.id)?' sel':''}${__imgSelectMode?' select-mode':''}" data-id="${img.id}" onclick="${__imgSelectMode?`toggleImgCard(this,${img.id})`:`previewImage(${JSON.stringify(img).replace(/'/g,"&#39;")})`}">
+      <div class="chk">✓</div>
+      <img src="${img.path}" alt="${esc(img.originalname)}">
+      <div class="img-act"><button onclick="event.stopPropagation();copyImgPath('${img.path}')" title="复制路径">📋</button><button onclick="event.stopPropagation();deleteImage(${img.id})" title="删除">✕</button></div>
+      <div class="img-name">${esc(img.originalname)}</div>
+    </div>`).join('');
+}
+function toggleImageSelect(){
+  __imgSelectMode=!__imgSelectMode;if(!__imgSelectMode)window._imgSel=new Set();
+  else window._imgSel=new Set();
+  document.getElementById('btnImgSelect').textContent=__imgSelectMode?'取消选择':'批量选择';
+  document.getElementById('btnImgBatchDel').style.display=__imgSelectMode?'':'none';
+  renderImageGrid();
+}
+function toggleImgCard(el,id){
+  if(!__imgSelectMode)return;
+  if(!window._imgSel)window._imgSel=new Set();
+  window._imgSel.has(id)?window._imgSel.delete(id):window._imgSel.add(id);
+  el.classList.toggle('sel');
+  document.getElementById('btnImgBatchDel').textContent=`批量删除 (${window._imgSel.size})`;
+}
+function batchDeleteImages(){
+  if(!window._imgSel||!window._imgSel.size){toast('请选择图片','info');return}
+  const ids=[...window._imgSel];
+  confirmAction(`确认删除选中的 ${ids.length} 张图片？`,async()=>{
+    for(const id of ids){await api('DELETE','/api/images/'+id)}
+    __imgSelectMode=false;window._imgSel=new Set();
+    document.getElementById('btnImgSelect').textContent='批量选择';document.getElementById('btnImgBatchDel').style.display='none';
+    loadImages();toast(`已删除 ${ids.length} 张图片`,'success');
+  });
+}
+function previewImage(img){
+  window._previewPath=img.path;window._previewId=img.id;
+  document.getElementById('imgPreviewImg').src=img.path;
+  document.getElementById('imgPreviewMeta').innerHTML=`<span>${esc(img.originalname)}</span><span>${(img.size/1024).toFixed(1)} KB</span><span>${img.mimetype}</span><span>${new Date(img.uploadedAt).toLocaleString('zh-CN')}</span>`;
+  document.getElementById('btnDelPreview').onclick=()=>{closeModal('imgPreviewModal');deleteImage(img.id)};
+  document.getElementById('imgPreviewModal').classList.add('show');
+}
+function copyImgPath(path){navigator.clipboard.writeText(path).then(()=>toast('路径已复制','success')).catch(()=>prompt('复制:',path))}
+function handleUpload(input){
+  const files=input.files;if(!files.length)return;
+  const formData=new FormData();Array.from(files).forEach(f=>formData.append('image',f));
+  apiRaw('POST','/api/upload',formData).then(d=>{if(d.error){toast(d.error,'error');return}loadImages();input.value='';toast(`上传成功 (${files.length} 张)`,'success')});
+}
+function deleteImage(id){confirmAction('确认删除该图片？',()=>{api('DELETE','/api/images/'+id).then(()=>{loadImages();toast('已删除','success')})})}
+// Drag & drop
+(function(){
+  const dz=document.getElementById('dropZone');if(!dz)return;
+  ['dragenter','dragover'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.style.borderColor='var(--accent)'}));
+  ['dragleave','drop'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.style.borderColor=''}));
+  dz.addEventListener('drop',ev=>{
+    const files=ev.dataTransfer.files;if(!files.length)return;
+    const formData=new FormData();Array.from(files).forEach(f=>formData.append('image',f));
+    apiRaw('POST','/api/upload',formData).then(d=>{if(d.error){toast(d.error,'error');return}loadImages();toast(`上传成功 (${files.length} 张)`,'success')});
+  });
+})();
+
+// ============== Settings ============== 
+function loadSettings(){
+  api('GET','/api/settings').then(d=>{
+    if(!d||d.error)return;
+    document.getElementById('setTitle').value=d.site_title||'';document.getElementById('setDesc').value=d.site_description||'';
+    document.getElementById('setEmail').value=d.contact_email||'';document.getElementById('setPhone').value=d.contact_phone||'';
+    document.getElementById('setAddr').value=d.contact_address||'';document.getElementById('setFooter').value=d.footer_text||'';
+    document.getElementById('setBanner').value=d.site_banner||'';document.getElementById('bannerPath').value=d.site_banner||'';
+    updateBannerPreview(d.site_banner||'');
+    document.getElementById('setBannerTitle').value=d.banner_title||'';document.getElementById('setBannerSubtitle').value=d.banner_subtitle||'';
+    document.getElementById('setSeoKw').value=d.seo_keywords||'';document.getElementById('setSeoDesc').value=d.seo_description||'';
+    document.getElementById('setSocFb').value=d.social_facebook||'';document.getElementById('setSocLi').value=d.social_linkedin||'';
+    document.getElementById('setSocYt').value=d.social_youtube||'';document.getElementById('setSocTw').value=d.social_twitter||'';
+    document.getElementById('setSmtpHost').value=d.smtp_host||'';document.getElementById('setSmtpPort').value=d.smtp_port||'';
+    document.getElementById('setSmtpUser').value=d.smtp_user||'';document.getElementById('setSmtpPass').value=d.smtp_pass||'';
+    document.getElementById('setSmtpFrom').value=d.smtp_from||'';
+  });
+}
+// Settings tabs
+document.querySelectorAll('#settingsTabs button').forEach(btn=>{btn.addEventListener('click',()=>{
+  document.querySelectorAll('#settingsTabs button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  document.querySelectorAll('[id^="tab-"]').forEach(t=>t.style.display='none');
+  document.getElementById('tab-'+btn.dataset.tab).style.display='block';
+})});
+function saveSettings(){
+  api('PUT','/api/settings',{
+    site_title:document.getElementById('setTitle').value.trim(),site_description:document.getElementById('setDesc').value.trim(),
+    contact_email:document.getElementById('setEmail').value.trim(),contact_phone:document.getElementById('setPhone').value.trim(),
+    contact_address:document.getElementById('setAddr').value.trim(),footer_text:document.getElementById('setFooter').value.trim(),
+    site_banner:document.getElementById('setBanner').value.trim(),banner_title:document.getElementById('setBannerTitle').value.trim(),
+    banner_subtitle:document.getElementById('setBannerSubtitle').value.trim(),
+    seo_keywords:document.getElementById('setSeoKw').value.trim(),seo_description:document.getElementById('setSeoDesc').value.trim(),
+    social_facebook:document.getElementById('setSocFb').value.trim(),social_linkedin:document.getElementById('setSocLi').value.trim(),
+    social_youtube:document.getElementById('setSocYt').value.trim(),social_twitter:document.getElementById('setSocTw').value.trim(),
+    smtp_host:document.getElementById('setSmtpHost').value.trim(),smtp_port:document.getElementById('setSmtpPort').value.trim(),
+    smtp_user:document.getElementById('setSmtpUser').value.trim(),smtp_pass:document.getElementById('setSmtpPass').value.trim(),
+    smtp_from:document.getElementById('setSmtpFrom').value.trim()
+  }).then(d=>{if(d.error)toast(d.error,'error');else toast('设置已保存','success')});
+  return false;
+}
+
+// ============== Users ==============
+function loadUsers(){api('GET','/api/users').then(d=>{
+  const list=Array.isArray(d)?d:[];const tbody=document.getElementById('usersTable');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="4"><div class="empty">暂无用户</div></td></tr>';return}
+  tbody.innerHTML=list.map(u=>`<tr><td><strong>${esc(u.username)}</strong></td><td>${u.role==='admin'?'管理员':'编辑'}</td><td class="text-sm">${new Date(u.created).toLocaleDateString('zh-CN')}</td>
+    <td><div class="flex" style="gap:3px"><button class="btn btn-o btn-xs" onclick='editUser(${JSON.stringify(u).replace(/'/g,"&#39;")})'>编辑</button>${u.username!=='admin'?`<button class="btn btn-d btn-xs" onclick="deleteUser(${u.id})">删除</button>`:''}</div></td></tr>`).join('');
+})}
+function openUserModal(){document.getElementById('userModalTitle').textContent='新增用户';document.getElementById('userId').value='';document.getElementById('userName').value='';document.getElementById('userPass').value='';document.getElementById('userPass').required=true;document.getElementById('userRole').value='editor';document.getElementById('userModal').classList.add('show')}
+function editUser(u){document.getElementById('userModalTitle').textContent='编辑用户';document.getElementById('userId').value=u.id;document.getElementById('userName').value=u.username;document.getElementById('userPass').value='';document.getElementById('userPass').required=false;document.getElementById('userRole').value=u.role;document.getElementById('userModal').classList.add('show')}
+function saveUser(){
+  const id=document.getElementById('userId').value;const body={username:document.getElementById('userName').value.trim(),role:document.getElementById('userRole').value};
+  const pw=document.getElementById('userPass').value.trim();if(pw)body.password=pw;
+  if(!body.username){toast('请输入用户名','error');return false}
+  api(id?'PUT':'POST',id?`/api/users/${id}`:'/api/users',body).then(d=>{if(d.error){toast(d.error,'error');return}closeModal('userModal');loadUsers();toast(id?'已更新':'已创建','success')});
+  return false;
+}
+function deleteUser(id){confirmAction('确认删除该用户？',()=>{api('DELETE','/api/users/'+id).then(d=>{if(d.error){toast(d.error,'error');return}loadUsers();toast('已删除','success')})})}
+
+// ============== System ==============
+function loadSystemInfo(){api('GET','/api/system').then(d=>{
+  if(d.error){document.getElementById('sysInfo').innerHTML='<div class="empty">无法获取系统信息</div>';return}
+  const fmt=(b)=>{if(b>1048576)return(b/1048576).toFixed(1)+' MB';if(b>1024)return(b/1024).toFixed(1)+' KB';return b+' B'};
+  const uptime=Math.floor(d.uptime);const h=Math.floor(uptime/3600);const m=Math.floor((uptime%3600)/60);
+  document.getElementById('sysInfo').innerHTML=`
+    <div class="sys-item"><div class="k">服务器运行</div><div class="v">${h}小时${m}分钟</div></div>
+    <div class="sys-item"><div class="k">Node.js</div><div class="v">${d.nodeVersion}</div></div>
+    <div class="sys-item"><div class="k">内存使用</div><div class="v">${(d.memory.rss/1048576).toFixed(0)} MB</div></div>
+    <div class="sys-item"><div class="k">数据文件</div><div class="v">${fmt(d.dataTotal)}</div></div>
+    <div class="sys-item"><div class="k">上传文件</div><div class="v">${d.uploads.count} 个 / ${fmt(d.uploads.totalSize)}</div></div>
+    <div class="sys-item"><div class="k">服务器时间</div><div class="v">${new Date(d.serverTime).toLocaleString('zh-CN')}</div></div>`;
+})}
+function downloadBackup(){
+  api('GET','/api/backup').then(d=>{
+    if(!d||d.error){toast('备份失败','error');return}
+    downloadBlob(JSON.stringify(d,null,2),'waterbearintl_backup_'+Date.now()+'.json','application/json');
+    toast('备份已下载','success');
+  });
+}
+function handleRestore(input){
+  const file=input.files[0];if(!file)return;
+  confirmAction(`确认从 "${file.name}" 恢复数据？<br><span class="text-sm">当前数据将自动备份，但已有数据会被覆盖。</span>`,(()=>{
+    const reader=new FileReader();
+    reader.onload=function(e){
+      try{const backup=JSON.parse(e.target.result);api('POST','/api/restore',backup).then(d=>{if(d.error){toast(d.error,'error');return}toast(`已恢复 ${d.restored.length} 个数据文件`,'success');input.value=''})}
+      catch{toast('备份文件格式无效','error');input.value=''}
+    };
+    reader.readAsText(file);
+  }),'确认恢复');
+}
+
+// ============== Logs ==============
+const logLabels={login:'用户登录',login_success:'登录成功',login_failed:'登录失败',logout:'退出登录',product_create:'创建产品',product_update:'更新产品',product_delete:'删除产品',product_batch_delete:'批量删除产品',product_batch_update:'批量更新产品',product_batch_featured:'推荐产品切换',image_upload:'上传图片',image_delete:'删除图片',message_delete:'删除消息',user_create:'创建用户',user_update:'更新用户',user_delete:'删除用户',settings_update:'更新设置',backup_create:'创建备份',restore:'恢复备份'};
+function logLabel(a){return logLabels[a]||a}
+function loadLogs(page){currentLogPage=page;
+  api('GET','/api/logs?page='+page).then(d=>{
+    const tbody=document.getElementById('logsTable');
+    if(d.error||!d.data||!d.data.length){tbody.innerHTML='<tr><td colspan="3"><div class="empty">暂无日志</div></td></tr>';return}
+    tbody.innerHTML=d.data.map(l=>`<tr><td style="width:160px">${new Date(l.time).toLocaleString('zh-CN')}</td><td style="width:120px">${logLabel(l.action)}</td><td class="text-sm">${JSON.stringify(l.detail)}</td></tr>`).join('');
+    const pg=document.getElementById('logsPagination');
+    if(d.totalPages<=1){pg.innerHTML='';return}
+    let h='<button '+(page<=1?'disabled':'')+' onclick="loadLogs('+(page-1)+')">‹</button>';
+    for(let i=1;i<=d.totalPages;i++)h+='<button class="'+(i===page?'active':'')+'" onclick="loadLogs('+i+')">'+i+'</button>';
+    h+='<button '+(page>=d.totalPages?'disabled':'')+' onclick="loadLogs('+(page+1)+')">›</button>';
+    h+='<span class="page-info">共 '+d.total+' 条</span>';pg.innerHTML=h;
+  });
+}
+
+// ============== Helpers ==============
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function downloadBlob(content,filename,mime){const b=new Blob([content],{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=filename;a.click()}
+
+// ============== Product Image Upload ==============
+function handleProdImageUpload(input){
+  const file=input.files[0];if(!file)return;
+  const formData=new FormData();formData.append('image',file);
+  apiRaw('POST','/api/upload',formData).then(d=>{
+    if(d.error){toast(d.error,'error');return}
+    document.getElementById('prodImage').value=d.path;
+    document.getElementById('prodImagePath').value=d.path;
+    updateProdImgPreview(d.path);
+    document.getElementById('btnClearProdImg').style.display='';
+    loadImages();
+    toast('上传成功','success');
+  });
+}
+function updateProdImgPreview(path){
+  const el=document.getElementById('prodImgPreview');if(!el)return;
+  if(path){el.innerHTML=`<img src="${path}" style="width:100%;height:100%;object-fit:cover">`;document.getElementById('btnClearProdImg').style.display='';}
+  else{el.innerHTML='<span style="color:var(--muted);font-size:11px">暂无图片</span>';document.getElementById('btnClearProdImg').style.display='none'}
+}
+function clearProdImage(){
+  document.getElementById('prodImage').value='';
+  document.getElementById('prodImagePath').value='';
+  document.getElementById('prodImgUpload').value='';
+  updateProdImgPreview('');
+}
+
+// ============== Settings Banner Upload ==============
+function handleBannerUpload(input){
+  const file=input.files[0];if(!file)return;
+  const formData=new FormData();formData.append('image',file);
+  apiRaw('POST','/api/upload',formData).then(d=>{
+    if(d.error){toast(d.error,'error');return}
+    document.getElementById('setBanner').value=d.path;
+    updateBannerPreview(d.path);
+    loadImages();
+    toast('上传成功','success');
+  });
+}
+function updateBannerPreview(path){
+  const el=document.getElementById('bannerPreview');if(!el)return;
+  if(path){el.innerHTML=`<img src="${path}" style="width:100%;height:100%;object-fit:cover">`}
+  else{el.innerHTML='<span style="color:var(--muted);font-size:11px">暂无海报</span>'}
+}
+function clearBanner(){document.getElementById('setBanner').value='';document.getElementById('bannerUpload').value='';updateBannerPreview('')}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(ov=>{ov.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')})});
+
+// Init
+(function(){TOKEN=localStorage.getItem('wb_token')||'';if(TOKEN){showAdmin();return}document.getElementById('loginPage').style.display='flex';document.getElementById('adminPanel').style.display='none'})();
+</script>
+</body>
+</html>

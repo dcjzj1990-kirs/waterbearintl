@@ -1,0 +1,57 @@
+{
+  "about": {
+    "title_zh": "全球工业品供应链专家",
+    "title_en": "Global Industrial Supply Chain Expert",
+    "content_zh": "<p>WaterbearIntl成立于2008年，总部位于中国制造业核心区域，是一家专业的工业产品出口贸易公司。我们致力于为全球客户提供高质量的中国制造工业产品。</p><p>公司拥有超过5000平方米的仓储设施，与国内外200多家优质供应商建立了长期战略合作关系，年出口额突破2亿美元。我们的团队由经验丰富的国际贸易专家、技术工程师和多语种客服人员组成。</p>",
+    "content_en": "<p>Founded in 2008 and headquartered in China's manufacturing heartland, WaterbearIntl is a professional industrial products export company. We are dedicated to providing high-quality Chinese-manufactured industrial products to global clients.</p><p>With over 5,000 sqm of warehouse facilities and 200+ premium suppliers, annual exports exceed $200M. Our team consists of experienced international trade specialists, technical engineers, and multilingual customer service professionals.</p>",
+    "image": "images/about-img.jpg",
+    "bg_image": "images/about-bg.jpg"
+  },
+  "services": {
+    "title_zh": "一站式外贸解决方案",
+    "title_en": "One-Stop Trade Solutions",
+    "content_zh": "<p>从产品采购到最终交付，我们提供全链路服务，覆盖采购代理、质量控制、物流清关、OEM定制、售后支持和市场咨询六大核心领域。</p>",
+    "content_en": "<p>From product sourcing to final delivery, we offer end-to-end services covering sourcing agency, quality control, logistics, OEM customization, after-sales support, and market consulting.</p>",
+    "image": "images/services-bg.jpg"
+  },
+  "blog": {
+    "title_zh": "行业资讯与公司动态",
+    "title_en": "Industry News & Company Updates",
+    "posts": [
+      {
+        "id": 1,
+        "title_zh": "2026年全球工业品贸易趋势展望",
+        "title_en": "2026 Global Industrial Trade Trends Outlook",
+        "excerpt_zh": "分析后疫情时代全球工业品贸易格局变化，数字化供应链的新机遇与挑战...",
+        "excerpt_en": "Analyzing post-pandemic changes in global industrial trade patterns, new opportunities and challenges in digital supply chains...",
+        "date": "2026-05-15",
+        "image": "images/blog-1.jpg"
+      },
+      {
+        "id": 2,
+        "title_zh": "公司参加2026年德国汉诺威工业博览会",
+        "title_en": "WaterbearIntl at Hannover Messe 2026",
+        "excerpt_zh": "WaterbearIntl携最新产品亮相全球最大工业展会，与多家国际客户达成合作意向...",
+        "excerpt_en": "WaterbearIntl showcases latest products at world's largest industrial fair, reaches cooperation intentions with multiple international clients...",
+        "date": "2026-04-28",
+        "image": "images/blog-2.jpg"
+      },
+      {
+        "id": 3,
+        "title_zh": "如何选择可靠的工业品中国供应商",
+        "title_en": "How to Choose Reliable Industrial Suppliers in China",
+        "excerpt_zh": "来自15年外贸专家的实战指南，从资质审查到质量管控的全流程建议...",
+        "excerpt_en": "Practical guide from 15-year trade expert, full-process advice from qualification review to quality control...",
+        "date": "2026-04-10",
+        "image": "images/blog-3.jpg"
+      }
+    ]
+  },
+  "contact": {
+    "title_zh": "获取专业解决方案",
+    "title_en": "Get Professional Solutions",
+    "content_zh": "<p>如需产品询价、技术咨询或业务合作，请填写以下表单，我们将在24小时内与您联系。</p>",
+    "content_en": "<p>For product inquiries, technical consultation, or business collaboration, please fill out the form below. We will contact you within 24 hours.</p>",
+    "image": "images/contact-bg.jpg"
+  }
+}

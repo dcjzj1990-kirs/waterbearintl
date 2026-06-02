@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title data-i18n="page_title_contact">Contact Us - WaterbearIntl | Get a Quote</title>
+
+  <meta name="description" content="Contact WaterbearIntl for product inquiries, OEM/ODM requests, or partnership opportunities. Response within 24 hours.">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
+
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body class="page-contact">
+
+
+
+<header class="header" id="header">
+
+  <div class="header-inner">
+
+    <a href="index.html" class="logo"><div class="logo-icon">W</div><span>WaterbearIntl</span></a>
+
+    <nav class="nav" id="mainNav" role="navigation">
+
+      <a href="index.html" class="nav-link" data-i18n="nav_home">Home</a>
+
+      <a href="products.html" class="nav-link" data-i18n="nav_products">Products</a>
+
+      <a href="about.html" class="nav-link" data-i18n="nav_about">About Us</a>
+
+      <a href="services.html" class="nav-link" data-i18n="nav_services">Services</a>
+
+      <a href="blog.html" class="nav-link" data-i18n="nav_blog">News</a>
+
+      <a href="contact.html" class="nav-link active" data-i18n="nav_contact">Contact</a>
+
+    </nav>
+
+    <div class="header-actions">
+
+      <div class="lang-switch">
+
+        <button class="lang-btn active" data-lang="en">EN</button>
+
+        <button class="lang-btn" data-lang="zh">中文</button>
+
+      </div>
+
+      <a href="contact.html" class="btn btn-primary" data-i18n="nav_inquiry">INQUIRY</a>
+
+    </div>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+
+  </div>
+
+</header>
+
+
+
+<section class="page-banner dark-banner">
+
+  <div class="banner-bg-wrapper">
+
+    <img src="images/contact-bg.jpg" alt="" class="banner-bg-img">
+
+    <div class="banner-bg-overlay"></div>
+
+  </div>
+
+  <div class="container">
+
+    <h2 data-i18n="contact_title">Get Professional Solutions</h2>
+
+    <p data-i18n="contact_desc">For product inquiries, technical consultation, or business collaboration</p>
+
+  </div>
+
+</section>
+
+
+
+<section class="section">
+
+  <div class="container">
+
+    <div class="contact-content fade-in">
+
+      <!-- Form -->
+
+      <div class="contact-form" id="inquiryFormWrapper">
+
+        <h3 class="form-title" data-i18n="form_title">Send Inquiry</h3>
+
+        <form id="inquiryForm" novalidate>
+
+          <div class="form-row">
+
+            <div class="form-group">
+
+              <label for="inqName"><span data-i18n="form_name">Name</span> <span class="required">*</span></label>
+
+              <input type="text" id="inqName" data-i18n="form_name_ph" placeholder="Enter your name" required>
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="inqEmail"><span data-i18n="form_email">Email</span> <span class="required">*</span></label>
+
+              <input type="email" id="inqEmail" data-i18n="form_email_ph" placeholder="Enter your email address" required>
+
+            </div>
+
+          </div>
+
+          <div class="form-row">
+
+            <div class="form-group">
+
+              <label for="inqPhone"><span data-i18n="form_phone">Phone</span></label>
+
+              <input type="tel" id="inqPhone" data-i18n="form_phone_ph" placeholder="Enter your phone number">
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="inqCompany"><span data-i18n="form_company">Company</span></label>
+
+              <input type="text" id="inqCompany" data-i18n="form_company_ph" placeholder="Enter company name">
+
+            </div>
+
+          </div>
+
+          <div class="form-row">
+
+            <div class="form-group">
+
+              <label for="inqCountry"><span data-i18n="form_country">Country</span></label>
+
+              <select id="inqCountry">
+
+                <option value="" data-i18n="form_country_ph">Select country</option>
+
+                <option data-i18n="contact_country_us">United States</option><option data-i18n="contact_country_de">Germany</option><option data-i18n="contact_country_uk">United Kingdom</option>
+
+                <option data-i18n="contact_country_fr">France</option><option data-i18n="contact_country_it">Italy</option><option data-i18n="contact_country_es">Spain</option>
+
+                <option data-i18n="contact_country_ca">Canada</option><option data-i18n="contact_country_au">Australia</option><option data-i18n="contact_country_jp">Japan</option>
+
+                <option data-i18n="contact_country_kr">South Korea</option><option data-i18n="contact_country_br">Brazil</option><option data-i18n="contact_country_mx">Mexico</option>
+
+                <option data-i18n="contact_country_in">India</option><option data-i18n="contact_country_ae">UAE</option><option data-i18n="contact_country_sa">Saudi Arabia</option>
+
+                <option data-i18n="contact_country_za">South Africa</option><option data-i18n="contact_country_ng">Nigeria</option><option data-i18n="contact_country_other">Other</option>
+
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="inqSubject"><span data-i18n="form_subject">Subject</span> <span class="required">*</span></label>
+
+              <select id="inqSubject" required>
+
+                <option value="" data-i18n="form_subject_ph">Select inquiry subject</option>
+
+                <option value="product" data-i18n="subject_product">Product Inquiry</option>
+
+                <option value="odm" data-i18n="subject_odm">OEM/ODM Customization</option>
+
+                <option value="partner" data-i18n="subject_partner">Partnership</option>
+
+                <option value="other" data-i18n="subject_other">Other Inquiries</option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="inqMsg"><span data-i18n="form_msg">Message</span> <span class="required">*</span></label>
+
+            <textarea id="inqMsg" rows="5" data-i18n="form_msg_ph" placeholder="Describe your requirements or questions..." required></textarea>
+
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;" data-i18n="form_submit">Submit Inquiry</button>
+
+        </form>
+
+      </div>
+
+
+
+      <!-- Contact Info -->
+
+      <div class="contact-info-side">
+
+        <div class="contact-info-card">
+
+          <div class="ci-icon">📍</div>
+
+          <div>
+
+            <h4 data-i18n="contact_address_title">Address</h4>
+
+            <p data-i18n="contact_address">15F, Block B, International Business Center, Yinzhou District, Ningbo, Zhejiang, China</p>
+
+          </div>
+
+        </div>
+
+        <div class="contact-info-card">
+
+          <div class="ci-icon">📧</div>
+
+          <div>
+
+            <h4 data-i18n="contact_email_title">Email</h4>
+
+            <p>info@waterbearintl.com<br>sales@waterbearintl.com</p>
+
+          </div>
+
+        </div>
+
+        <div class="contact-info-card">
+
+          <div class="ci-icon">📞</div>
+
+          <div>
+
+            <h4 data-i18n="contact_phone_title">Phone</h4>
+
+            <p>+86 574 8888 8888<br>+86 574 8888 8889</p>
+
+          </div>
+
+        </div>
+
+        <div class="contact-info-card">
+
+          <div class="ci-icon">🕐</div>
+
+          <div>
+
+            <h4 data-i18n="contact_hours_title">Business Hours</h4>
+
+            <p data-i18n="contact_hours">Mon-Fri 9:00 - 18:00 (GMT+8)</p>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- Map placeholder -->
+
+        <div style="background:var(--dj-card-hover);border-radius:var(--radius-lg);padding:32px;text-align:center;border:1px solid rgba(255,255,255,.08);">
+
+          <div style="font-size:2.5rem;opacity:0.3;margin-bottom:8px;">🗺️</div>
+
+          <p style="color:rgba(255,255,255,.6);font-size:0.88rem;" data-i18n="contact_map_text">Ningbo, Zhejiang, China</p>
+
+          <p style="color:rgba(255,255,255,.4);font-size:0.8rem;" data-i18n="contact_map_sub">International Business Center</p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<footer class="footer">
+
+  <div class="container">
+
+    <div class="footer-grid">
+
+      <div class="footer-brand"><h3 style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><div class="logo-icon" style="width:32px;height:32px;font-size:0.9rem;">W</div>WaterbearIntl</h3><p data-i18n="footer_brand_desc">Professional industrial products export company, delivering premium Chinese-manufactured products and one-stop procurement solutions worldwide.</p></div>
+
+      <div class="footer-col"><h4 data-i18n="footer_products">Products</h4><ul><li><a href="products.html" data-i18n="prod1_name">Precision CNC Machine</a></li><li><a href="products.html" data-i18n="prod2_name">Industrial Bearings</a></li><li><a href="products.html" data-i18n="prod3_name">Stainless Steel Valves</a></li><li><a href="products.html" data-i18n="prod4_name">LED Industrial Lighting</a></li></ul></div>
+
+      <div class="footer-col"><h4 data-i18n="nav_about">About</h4><ul><li><a href="about.html" data-i18n="nav_about">About Us</a></li><li><a href="services.html" data-i18n="nav_services">Services</a></li><li><a href="blog.html" data-i18n="nav_blog">News</a></li><li><a href="contact.html" data-i18n="nav_contact">Contact</a></li></ul></div>
+
+      <div class="footer-col"><h4 data-i18n="footer_support">Support</h4><ul><li><a href="#" data-i18n="footer_privacy">Privacy Policy</a></li><li><a href="#" data-i18n="footer_terms">Terms of Service</a></li><li><a href="mailto:info@waterbearintl.com">info@waterbearintl.com</a></li><li><a href="tel:+8657488888888">+86 574 8888 8888</a></li></ul></div>
+
+    </div>
+
+    <div class="footer-bottom"><span data-i18n="footer_copyright">© 2026 WaterbearIntl. All rights reserved.</span></div>
+
+  </div>
+
+</footer>
+
+<button class="back-to-top" id="backToTop" data-i18n="back_to_top" aria-label="Back to top">↑</button>
+
+<script src="js/data-loader.js"></script>
+
+<script src="js/i18n.js"></script>
+
+<script src="js/main.js"></script>
+
+<script src="js/contact-form.js"></script>
+
+</body>
+
+</html>
+

@@ -1,0 +1,50 @@
+{
+  "home": {
+    "title_zh": "WaterbearIntl - 全球B2B工业品贸易伙伴 | 优质中国制造出口",
+    "title_en": "WaterbearIntl - Global B2B Industrial Trade Partner | Premium China Export",
+    "desc_zh": "WaterbearIntl专注高品质工业产品出口，服务全球50+国家，提供一站式供应链解决方案。数控机床、工业轴承、液压元件等优质中国制造。",
+    "desc_en": "WaterbearIntl specializes in premium industrial product exports to 50+ countries. One-stop supply chain solutions. CNC machines, bearings, hydraulic components & more.",
+    "keywords_zh": "工业品出口,B2B贸易,中国制造,数控机床,工业轴承,液压元件,外贸公司",
+    "keywords_en": "industrial export,B2B trade,China manufacturing,CNC machine,bearings,hydraulic components,trade company"
+  },
+  "products": {
+    "title_zh": "产品中心 - WaterbearIntl | 工业设备·五金工具·电子元器件",
+    "title_en": "Products - WaterbearIntl | Industrial Equipment · Hardware · Electronics",
+    "desc_zh": "浏览WaterbearIntl全系列工业产品：机械设备、五金工具、工业设备、电子元器件、原材料。支持OEM/ODM定制。",
+    "desc_en": "Browse WaterbearIntl's full range of industrial products: machinery, hardware, industrial equipment, electronics, raw materials. OEM/ODM available.",
+    "keywords_zh": "工业产品,机械设备,五金工具,电子元器件,原材料,OEM,ODM",
+    "keywords_en": "industrial products,machinery,hardware tools,electronic components,raw materials,OEM,ODM"
+  },
+  "about": {
+    "title_zh": "关于我们 - WaterbearIntl | 15年工业品出口专家",
+    "title_en": "About Us - WaterbearIntl | 15 Years Industrial Export Expert",
+    "desc_zh": "WaterbearIntl成立于2008年，200+供应商，5000㎡仓储，年出口额超2亿美元。ISO 9001认证品质。",
+    "desc_en": "Founded in 2008, 200+ suppliers, 5000sqm warehouse, $200M+ annual exports. ISO 9001 certified quality.",
+    "keywords_zh": "关于WaterbearIntl,工业品出口公司,外贸公司介绍,ISO认证",
+    "keywords_en": "about WaterbearIntl,industrial export company,trade company,ISO certified"
+  },
+  "services": {
+    "title_zh": "服务方案 - WaterbearIntl | 一站式外贸解决方案",
+    "title_en": "Services - WaterbearIntl | One-Stop Trade Solutions",
+    "desc_zh": "采购代理、质量控制、物流清关、OEM定制、售后支持、市场咨询——全链路外贸服务。",
+    "desc_en": "Sourcing agency, quality control, logistics, OEM customization, after-sales, market consulting - end-to-end trade services.",
+    "keywords_zh": "外贸服务,采购代理,质量控制,OEM定制,物流清关,售后服务",
+    "keywords_en": "trade services,sourcing agency,quality control,OEM customization,logistics,after-sales"
+  },
+  "blog": {
+    "title_zh": "新闻动态 - WaterbearIntl | 行业资讯与公司动态",
+    "title_en": "Blog - WaterbearIntl | Industry News & Updates",
+    "desc_zh": "了解外贸行业最新趋势、公司动态和实用采购指南。",
+    "desc_en": "Latest trends in foreign trade, company updates, and practical sourcing guides.",
+    "keywords_zh": "外贸资讯,行业新闻,公司动态,采购指南",
+    "keywords_en": "trade news,industry news,company updates,sourcing guide"
+  },
+  "contact": {
+    "title_zh": "联系我们 - WaterbearIntl | 获取报价与咨询",
+    "title_en": "Contact Us - WaterbearIntl | Get Quote & Consultation",
+    "desc_zh": "联系WaterbearIntl获取产品报价、技术咨询或业务合作。专业团队24小时内回复。",
+    "desc_en": "Contact WaterbearIntl for product quotes, technical consultation, or business collaboration. Professional team replies within 24 hours.",
+    "keywords_zh": "联系WaterbearIntl,产品询价,业务合作,外贸咨询",
+    "keywords_en": "contact WaterbearIntl,product inquiry,business collaboration,trade consultation"
+  }
+}

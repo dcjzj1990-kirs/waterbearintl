@@ -1,0 +1,84 @@
+{
+  "company": {
+    "name": "WaterbearIntl",
+    "name_zh": "WaterbearIntl",
+    "address_en": "15F, Block B, International Business Center, Yinzhou District, Ningbo, Zhejiang, China",
+    "address_zh": "中国浙江省宁波市鄞州区国际商务中心B座15层",
+    "email": "info@waterbearintl.com",
+    "phone": "+86 574 8888 8888",
+    "hours_en": "Mon-Fri 9:00 - 18:00 (GMT+8)",
+    "hours_zh": "周一至周五 9:00 - 18:00 (GMT+8)"
+  },
+  "hero": {
+    "title_en": "Your Trusted B2B Trade Partner",
+    "title_zh": "全球信赖的B2B贸易伙伴",
+    "desc_en": "Premium industrial product exports to 50+ countries. One-stop supply chain solutions from sourcing to delivery.",
+    "desc_zh": "专注高品质工业产品出口，服务全球50+国家与地区，提供从采购到交付的一站式供应链解决方案。",
+    "eyebrow_en": "Global Industrial B2B Trade Partner",
+    "eyebrow_zh": "全球工业B2B贸易伙伴",
+    "btn1_en": "View Products",
+    "btn1_zh": "浏览产品",
+    "btn2_en": "Get Quote",
+    "btn2_zh": "获取报价",
+    "bg_image": "images/hero-bg.jpg",
+    "stat1_label_en": "Export Countries",
+    "stat1_label_zh": "出口国家",
+    "stat1_value": "50+",
+    "stat2_label_en": "Global Clients",
+    "stat2_label_zh": "合作客户",
+    "stat2_value": "2000+",
+    "stat3_label_en": "Annual Export (USD)",
+    "stat3_label_zh": "年出口额(亿美元)",
+    "stat3_value": "2B"
+  },
+  "about": {
+    "text1_en": "Founded in 2008 and headquartered in China's manufacturing heartland, WaterbearIntl is a professional industrial products export company.",
+    "text1_zh": "WaterbearIntl成立于2008年，总部位于中国制造业核心区域，是一家专业的工业产品出口贸易公司。",
+    "text2_en": "With over 5,000 sqm of warehouse facilities and 200+ premium suppliers, annual exports exceed $200M.",
+    "text2_zh": "公司拥有超过5000平方米的仓储设施，与国内外200多家优质供应商建立了长期战略合作关系，年出口额突破2亿美元。",
+    "stat1_en": "15+ Years",
+    "stat1_zh": "15+ 年行业经验",
+    "stat2_en": "50+ Countries",
+    "stat2_zh": "50+ 出口国家",
+    "stat3_en": "200+ Suppliers",
+    "stat3_zh": "200+ 供应商伙伴",
+    "stat4_en": "5000m² Warehouse",
+    "stat4_zh": "5000㎡ 仓储空间"
+  },
+  "advantages": [
+    {
+      "title_en": "Quality Assurance",
+      "title_zh": "品质保障",
+      "desc_en": "Strict ISO 9001 quality management, multiple inspections per batch to meet international standards",
+      "desc_zh": "严格遵循ISO 9001质量管理体系，每批次产品均经过多重检测，确保符合国际标准"
+    },
+    {
+      "title_en": "Competitive Pricing",
+      "title_zh": "价格竞争力",
+      "desc_en": "Factory-direct supply chain eliminates middlemen, delivering competitive prices without compromising quality",
+      "desc_zh": "自有工厂直供，减少中间环节，在保证品质的前提下提供最具竞争力的价格"
+    },
+    {
+      "title_en": "Fast Delivery",
+      "title_zh": "快速交付",
+      "desc_en": "Modern logistics system partnered with top international carriers ensures on-time global delivery",
+      "desc_zh": "现代化仓储物流体系，与多家国际物流巨头合作，确保准时交付全球各地"
+    },
+    {
+      "title_en": "Professional Service",
+      "title_zh": "专业服务",
+      "desc_en": "24/7 multilingual customer support, one-on-one service from selection to after-sales",
+      "desc_zh": "提供7×24小时多语言客服，从选型、下单到售后全程一对一专业跟进"
+    }
+  ],
+  "cta": {
+    "title_en": "Get Professional Solutions",
+    "title_zh": "获取专业解决方案",
+    "desc_en": "For product inquiries, technical consultation, or business collaboration",
+    "desc_zh": "如需产品询价、技术咨询或业务合作"
+  },
+  "footer": {
+    "brand_desc_en": "Professional industrial products export company, delivering premium Chinese-manufactured products and one-stop procurement solutions worldwide.",
+    "brand_desc_zh": "专业工业产品出口公司，为全球客户提供优质中国制造产品和一站式采购解决方案。"
+  }
+}
