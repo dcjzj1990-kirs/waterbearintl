@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize i18n
   if (typeof i18n !== 'undefined') i18n.init();
 
+  // Initialize geo-detection (auto-detect country & language)
+  if (typeof geoDetect !== 'undefined') geoDetect.init();
+
   // === Scroll Progress Bar ===
   initScrollProgress();
 
@@ -129,11 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // === Contact Form ===
   const contactForm = document.getElementById('inquiryForm');
   if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('inqName')?.value.trim();
       const email = document.getElementById('inqEmail')?.value.trim();
+      const company = document.getElementById('inqCompany')?.value.trim();
+      const phone = document.getElementById('inqPhone')?.value.trim();
+      const country = document.getElementById('inqCountry')?.value.trim();
+      const subject = document.getElementById('inqSubject')?.value;
       const msg = document.getElementById('inqMsg')?.value.trim();
+
       if (!name || !email || !msg) {
         showNotification(typeof i18n !== 'undefined' && i18n.currentLang === 'zh' ? '请填写必填字段' : 'Please fill in required fields', 'error');
         return;
@@ -142,16 +150,39 @@ document.addEventListener('DOMContentLoaded', () => {
         showNotification(typeof i18n !== 'undefined' && i18n.currentLang === 'zh' ? '请输入有效的邮箱地址' : 'Please enter a valid email address', 'error');
         return;
       }
+
       const submitBtn = contactForm.querySelector('button[type="submit"]');
       const originalText = submitBtn.textContent;
-      submitBtn.textContent = '...';
+      const sendingText = typeof i18n !== 'undefined' ? i18n.t('form_sending') : 'Submitting...';
+      submitBtn.textContent = sendingText;
       submitBtn.disabled = true;
-      setTimeout(() => {
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, company, phone, country, subject, message: msg })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || 'Server error');
+        }
+
+        const result = await response.json();
         showNotification(typeof i18n !== 'undefined' ? i18n.t('form_success') : 'Submission received!', 'success');
         contactForm.reset();
+      } catch (err) {
+        showNotification(
+          typeof i18n !== 'undefined'
+            ? (i18n.currentLang === 'zh' ? '提交失败，请稍后重试：' + err.message : 'Submission failed, please try again: ' + err.message)
+            : 'Submission failed: ' + err.message,
+          'error'
+        );
+      } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
-      }, 1200);
+      }
     });
   }
 

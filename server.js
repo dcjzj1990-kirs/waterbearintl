@@ -5,10 +5,36 @@ const multer = require('multer');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = 'waterbearintl_admin_secret_key_2026';
+
+// ===================== SECURITY: Load credentials from env =====================
+// JWT_SECRET: read from env, or auto-generate and save to .env
+let JWT_SECRET = process.env.JWT_SECRET;
+const ENV_PATH = path.join(__dirname, '.env');
+
+if (!JWT_SECRET || JWT_SECRET.length < 16) {
+  JWT_SECRET = crypto.randomBytes(32).toString('hex');
+  // Append or create .env file
+  let envContent = '';
+  if (fs.existsSync(ENV_PATH)) {
+    envContent = fs.readFileSync(ENV_PATH, 'utf8');
+  }
+  if (!envContent.includes('JWT_SECRET=')) {
+    fs.appendFileSync(ENV_PATH, `\nJWT_SECRET=${JWT_SECRET}\n`);
+    console.warn('[SECURITY] JWT_SECRET was auto-generated and saved to .env — please keep this file safe!');
+  } else {
+    console.warn('[SECURITY] JWT_SECRET found in .env but too short, using auto-generated value. Please update manually.');
+  }
+}
+
+// Admin password: read from env, fallback to bcrypt hash of 'admin123' for backward compat
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+
 const DATA_DIR = path.join(__dirname, 'data');
 
 // 确保数据目录存在
@@ -16,7 +42,7 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(path.join(__dirname, 'uploads'))) fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
 
 // 初始化数据文件
-const defaultAdminPwd = bcrypt.hashSync('admin123', 10);
+const defaultAdminPwd = bcrypt.hashSync(ADMIN_PASSWORD, 10);
 const dataDefaults = {
   'products.json': [],
   'users.json': [{ id: 1, username: 'admin', password: defaultAdminPwd, role: 'admin', created: new Date().toISOString() }],
@@ -173,6 +199,28 @@ app.get('/api/products/search', (req, res) => {
   if (status) products = products.filter(p => p.status === status);
   if (tag) products = products.filter(p => p.tag === tag);
   res.json(products);
+});
+
+// ===================== CONTACT FORM (public) =====================
+app.post('/api/contact', (req, res) => {
+  const { name, email, company, phone, country, subject, message } = req.body;
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Name, email, and message are required' });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Invalid email address' });
+  }
+  const messages = readData('messages.json');
+  const msg = {
+    id: Date.now(),
+    name, email, company: company || '', phone: phone || '',
+    country: country || '', subject: subject || '', message,
+    createdAt: new Date().toISOString(), read: false
+  };
+  messages.unshift(msg);
+  writeData('messages.json', messages);
+  log('contact_form', { name, email, subject });
+  res.json({ success: true, message: 'Thank you for your inquiry. We will get back to you within 24 hours.' });
 });
 
 // ===================== MESSAGES (Contact form submissions) =====================
@@ -367,9 +415,114 @@ app.get('/api/stats/trends', auth, (req, res) => {
   res.json(result);
 });
 
+// ===================== GEO DETECTION PROXY =====================
+app.get('/api/geo', async (req, res) => {
+  try {
+    const response = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(4000) });
+    if (!response.ok) throw new Error('ipapi.co returned ' + response.status);
+    const data = await response.json();
+    res.json({
+      country_code: data.country_code,
+      country_name: data.country_name,
+      region: data.region,
+      city: data.city,
+      ip: data.ip
+    });
+  } catch (err) {
+    res.status(502).json({ error: 'Geo detection failed', detail: err.message });
+  }
+});
+
+// ===================== PAYMENT - PayPal =====================
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID || '';
+const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET || '';
+const PAYPAL_API = process.env.PAYPAL_API || 'https://api-m.sandbox.paypal.com';
+
+async function getPayPalAccessToken() {
+  const auth = Buffer.from(PAYPAL_CLIENT_ID + ':' + PAYPAL_CLIENT_SECRET).toString('base64');
+  const res = await fetch(PAYPAL_API + '/v1/oauth2/token', {
+    method: 'POST',
+    headers: { Authorization: 'Basic ' + auth, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'grant_type=client_credentials'
+  });
+  if (!res.ok) throw new Error('PayPal auth failed');
+  const data = await res.json();
+  return data.access_token;
+}
+
+app.post('/api/create-paypal-order', async (req, res) => {
+  const { amount, purpose } = req.body;
+  const value = parseFloat(amount);
+  if (!value || value < 50 || value > 2000) {
+    return res.status(400).json({ error: 'Amount must be between $50 and $2000' });
+  }
+  if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+    return res.status(503).json({ error: 'PayPal is not configured. Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET in .env' });
+  }
+  try {
+    const token = await getPayPalAccessToken();
+    const orderRes = await fetch(PAYPAL_API + '/v2/checkout/orders', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        intent: 'CAPTURE',
+        purchase_units: [{
+          amount: { currency_code: 'USD', value: value.toFixed(2) },
+          description: 'Sample Fee - ' + (purpose || 'General')
+        }],
+        application_context: {
+          brand_name: 'WaterbearIntl',
+          shipping_preference: 'NO_SHIPPING',
+          user_action: 'PAY_NOW',
+          return_url: req.headers.origin + '/payment.html?status=success',
+          cancel_url: req.headers.origin + '/payment.html?status=cancel'
+        }
+      })
+    });
+    const order = await orderRes.json();
+    if (!orderRes.ok) throw new Error(order.message || 'PayPal order creation failed');
+    log('paypal_order_created', { orderId: order.id, amount: value.toFixed(2), purpose });
+    res.json({ id: order.id, status: order.status });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/capture-paypal-order', async (req, res) => {
+  const { orderId } = req.body;
+  if (!orderId) return res.status(400).json({ error: 'orderId is required' });
+  if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+    return res.status(503).json({ error: 'PayPal is not configured' });
+  }
+  try {
+    const token = await getPayPalAccessToken();
+    const captureRes = await fetch(PAYPAL_API + '/v2/checkout/orders/' + orderId + '/capture', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }
+    });
+    const capture = await captureRes.json();
+    if (!captureRes.ok) throw new Error(capture.message || 'PayPal capture failed');
+    log('paypal_payment_captured', { orderId, status: capture.status });
+    res.json({ status: capture.status, id: capture.id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===================== PAYMENT CONFIG (public) =====================
+app.get('/api/payment-config', (req, res) => {
+  res.json({
+    paypalClientId: PAYPAL_CLIENT_ID,
+    stripePublicKey: process.env.STRIPE_PUBLIC_KEY || ''
+  });
+});
+
 // Start
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Admin: http://localhost:${PORT}/admin.html`);
-  console.log(`Account: admin / admin123`);
+  console.log(`Default admin password is set via ADMIN_PASSWORD env variable (or 'admin123' if not set). Change it immediately in production.`);
 });
