@@ -40,18 +40,11 @@ if (!JWT_SECRET || JWT_SECRET.length < 16) {
 // Admin password: read from env, fallback to bcrypt hash of 'admin123' for backward compat
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
-const DATA_DIR = path.join(__dirname, 'data');
-
-// 确保数据目录存在
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(path.join(__dirname, 'uploads'))) fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
-
-// 初始化数据文件
-const defaultAdminPwd = bcrypt.hashSync(ADMIN_PASSWORD, 10);
-const dataDefaults = {
-  'products.json': [],
-  'users.json': [{ id: 1, username: 'admin', password: defaultAdminPwd, role: 'admin', created: new Date().toISOString() }],
-  'settings.json': {
+// In-memory data storage for Railway (read-only filesystem)
+const inMemoryData = {
+  products: [],
+  users: [{ id: 1, username: 'admin', password: bcrypt.hashSync(ADMIN_PASSWORD, 10), role: 'admin', created: new Date().toISOString() }],
+  settings: {
     site_title: 'WaterbearIntl', site_description: 'Global Industrial B2B Trade Partner',
     contact_email: 'info@waterbearintl.com', contact_phone: '+86 574 8888 8888', contact_address: 'Ningbo, Zhejiang, China',
     seo_keywords: 'industrial B2B, machinery, hardware, bearings, CNC parts',
@@ -60,15 +53,10 @@ const dataDefaults = {
     footer_text: '© 2026 WaterbearIntl. All rights reserved.',
     smtp_host: '', smtp_port: '', smtp_user: '', smtp_pass: '', smtp_from: ''
   },
-  'messages.json': [],
-  'images.json': [],
-  'logs.json': []
+  messages: [],
+  images: [],
+  logs: []
 };
-
-Object.entries(dataDefaults).forEach(([file, data]) => {
-  const fp = path.join(DATA_DIR, file);
-  if (!fs.existsSync(fp)) fs.writeFileSync(fp, JSON.stringify(data, null, 2), 'utf8');
-});
 
 // Middleware
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000').split(',').map(s => s.trim());
@@ -84,18 +72,11 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Multer config with MIME type whitelist
 const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, 'uploads'),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
-    cb(null, `${name}_${Date.now()}${ext}`);
-  }
-});
+const storage = multer.memoryStorage(); // memory storage for Railway
 const upload = multer({
   storage,
   limits: { fileSize: 20 * 1024 * 1024 },
@@ -118,14 +99,12 @@ function auth(req, res, next) {
   } catch { res.status(401).json({ error: 'Invalid token' }); }
 }
 
-// 读/写辅助
-function readData(file) { return JSON.parse(fs.readFileSync(path.join(DATA_DIR, file), 'utf8')); }
-function writeData(file, data) { fs.writeFileSync(path.join(DATA_DIR, file), JSON.stringify(data, null, 2), 'utf8'); }
+// 读/写辅助（内存存储）
+function readData(file) { const key = file.replace('.json',''); return inMemoryData[key]; }
+function writeData(file, data) { const key = file.replace('.json',''); inMemoryData[key] = data; }
 function log(action, detail) {
-  const logs = readData('logs.json');
-  logs.unshift({ id: Date.now(), action, detail, time: new Date().toISOString() });
-  if (logs.length > 500) logs.length = 500;
-  writeData('logs.json', logs);
+  inMemoryData.logs.unshift({ id: Date.now(), action, detail, time: new Date().toISOString() });
+  if (inMemoryData.logs.length > 500) inMemoryData.logs.length = 500;
 }
 
 // ===================== AUTH =====================
@@ -282,30 +261,25 @@ app.delete('/api/messages/:id', auth, (req, res) => {
 app.get('/api/images', auth, (req, res) => res.json(readData('images.json')));
 app.post('/api/upload', auth, upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file' });
-  const images = readData('images.json');
+  const ext = path.extname(req.file.originalname) || '.png';
+  const filename = 'img-' + crypto.randomBytes(8).toString('hex') + ext;
+  const dataUrl = 'data:' + req.file.mimetype + ';base64,' + req.file.buffer.toString('base64');
   const img = {
     id: Date.now(),
-    filename: req.file.filename,
+    filename: filename,
     originalname: req.file.originalname,
-    path: '/uploads/' + req.file.filename,
+    path: dataUrl,
     size: req.file.size,
     mimetype: req.file.mimetype,
     uploadedAt: new Date().toISOString()
   };
-  images.unshift(img);
-  writeData('images.json', images);
-  log('image_upload', { filename: req.file.filename });
+  inMemoryData.images.unshift(img);
+  log('image_upload', { filename: filename });
   res.json(img);
 });
 app.delete('/api/images/:id', auth, (req, res) => {
-  let images = readData('images.json');
-  const img = images.find(i => i.id == req.params.id);
-  if (!img) return res.status(404).json({ error: 'Not found' });
-  const filePath = path.join(__dirname, 'uploads', img.filename);
-  if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-  images = images.filter(i => i.id != req.params.id);
-  writeData('images.json', images);
-  log('image_delete', { filename: img.filename });
+  inMemoryData.images = inMemoryData.images.filter(i => i.id != req.params.id);
+  log('image_delete', { id: req.params.id });
   res.json({ success: true });
 });
 
@@ -364,9 +338,7 @@ app.get('/api/logs', auth, (req, res) => {
 
 // ===================== BACKUP & RESTORE =====================
 app.get('/api/backup', auth, (req, res) => {
-  const backup = {};
-  const files = ['products.json', 'users.json', 'settings.json', 'messages.json', 'images.json', 'logs.json'];
-  files.forEach(f => { backup[f] = readData(f); });
+  const backup = { ...inMemoryData };
   backup._meta = { exportedAt: new Date().toISOString(), version: '1.0', exportedBy: req.user.username };
   log('backup_create', { size: JSON.stringify(backup).length });
   res.setHeader('Content-Type', 'application/json');
@@ -377,19 +349,12 @@ app.get('/api/backup', auth, (req, res) => {
 app.post('/api/restore', auth, (req, res) => {
   try {
     const backup = req.body;
-    const files = ['products.json', 'users.json', 'settings.json', 'messages.json', 'images.json', 'logs.json'];
-    const existingFiles = files.filter(f => backup[f]);
-    if (existingFiles.length === 0) return res.status(400).json({ error: '备份文件无效' });
-    // Save current as safety backup
-    const safetyDir = path.join(DATA_DIR, 'pre_restore_' + Date.now());
-    fs.mkdirSync(safetyDir, { recursive: true });
-    existingFiles.forEach(f => {
-      const src = path.join(DATA_DIR, f);
-      if (fs.existsSync(src)) fs.copyFileSync(src, path.join(safetyDir, f));
-      writeData(f, backup[f]);
-    });
-    log('restore', { restoredFiles: existingFiles, safetyDir });
-    res.json({ success: true, restored: existingFiles, safetyBackup: safetyDir });
+    const keys = ['products', 'users', 'settings', 'messages', 'images', 'logs'];
+    const existingKeys = keys.filter(k => backup[k]);
+    if (existingKeys.length === 0) return res.status(400).json({ error: '备份文件无效' });
+    existingKeys.forEach(k => { inMemoryData[k] = backup[k]; });
+    log('restore', { restoredKeys: existingKeys });
+    res.json({ success: true, restored: existingKeys });
   } catch (e) {
     res.status(500).json({ error: '恢复失败：' + e.message });
   }
@@ -397,28 +362,19 @@ app.post('/api/restore', auth, (req, res) => {
 
 // ===================== SYSTEM INFO =====================
 app.get('/api/system', auth, (req, res) => {
-  const dataFiles = ['products.json', 'users.json', 'settings.json', 'messages.json', 'images.json', 'logs.json'];
   const sizes = {};
-  dataFiles.forEach(f => {
-    const fp = path.join(DATA_DIR, f);
-    sizes[f] = fs.existsSync(fp) ? fs.statSync(fp).size : 0;
+  const dataFiles = ['products.json', 'users.json', 'settings.json', 'messages.json', 'images.json', 'logs.json'];
+  const keys = ['products', 'users', 'settings', 'messages', 'images', 'logs'];
+  dataFiles.forEach((f, i) => {
+    sizes[f] = JSON.stringify(inMemoryData[keys[i]]).length;
   });
-  const uploadDir = path.join(__dirname, 'uploads');
-  let uploadCount = 0, uploadSize = 0;
-  if (fs.existsSync(uploadDir)) {
-    fs.readdirSync(uploadDir).forEach(f => {
-      const s = fs.statSync(path.join(uploadDir, f));
-      uploadCount++;
-      uploadSize += s.size;
-    });
-  }
   res.json({
     nodeVersion: process.version,
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     dataFiles: sizes,
     dataTotal: Object.values(sizes).reduce((a, b) => a + b, 0),
-    uploads: { count: uploadCount, totalSize: uploadSize },
+    uploads: { count: inMemoryData.images.length, totalSize: inMemoryData.images.reduce((s, i) => s + (i.size || 0), 0) },
     serverTime: new Date().toISOString()
   });
 });
@@ -581,7 +537,7 @@ app.delete('/api/trash/:type/:id', auth, (req, res) => {
 // ===================== EMAIL NOTIFICATION (P3-2) =====================
 async function sendNewMessageEmail(msg) {
   try {
-    const settings = readData('settings.json');
+    const settings = inMemoryData.settings;
     if (!settings.smtp_host || !settings.smtp_user || !settings.smtp_pass) return;
     const transporter = nodemailer.createTransport({
       host: settings.smtp_host,
