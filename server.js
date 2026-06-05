@@ -7,7 +7,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const dotenv = require('dotenv');
-const nodemailer = require('nodemailer');
+let nodemailer = null;
+try {
+  nodemailer = require('nodemailer');
+} catch (e) {
+  console.log('nodemailer not available, email notifications disabled');
+}
 dotenv.config();
 
 const app = express();
@@ -537,6 +542,7 @@ app.delete('/api/trash/:type/:id', auth, (req, res) => {
 // ===================== EMAIL NOTIFICATION (P3-2) =====================
 async function sendNewMessageEmail(msg) {
   try {
+    if (!nodemailer) return; // nodemailer not installed
     const settings = inMemoryData.settings;
     if (!settings.smtp_host || !settings.smtp_user || !settings.smtp_pass) return;
     const transporter = nodemailer.createTransport({
