@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const dotenv = require('dotenv');
+const nodemailer = require('nodemailer');
 dotenv.config();
 
 const app = express();
@@ -66,13 +67,23 @@ Object.entries(dataDefaults).forEach(([file, data]) => {
 });
 
 // Middleware
-app.use(cors());
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000').split(',').map(s => s.trim());
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin) || ALLOWED_ORIGINS.includes('*')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Multer config
+// Multer config with MIME type whitelist
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 const storage = multer.diskStorage({
   destination: path.join(__dirname, 'uploads'),
   filename: (req, file, cb) => {
@@ -81,7 +92,17 @@ const storage = multer.diskStorage({
     cb(null, `${name}_${Date.now()}${ext}`);
   }
 });
-const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
+const upload = multer({
+  storage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_MIMES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`File type ${file.mimetype} is not allowed. Only images (JPEG, PNG, GIF, WebP, SVG) are accepted.`));
+    }
+  }
+});
 
 // Auth middleware
 function auth(req, res, next) {
@@ -133,7 +154,7 @@ app.get('/api/dashboard', auth, (req, res) => {
 });
 
 // ===================== PRODUCTS =====================
-app.get('/api/products', (req, res) => res.json(readData('products.json')));
+app.get('/api/products', (req, res) => res.json(readData('products.json').filter(p => !p.deletedAt)));
 app.post('/api/products', auth, (req, res) => {
   const products = readData('products.json');
   const item = { id: Date.now(), ...req.body, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
@@ -152,10 +173,10 @@ app.put('/api/products/:id', auth, (req, res) => {
   res.json(products[idx]);
 });
 app.delete('/api/products/:id', auth, (req, res) => {
-  let products = readData('products.json');
+  const products = readData('products.json');
   const item = products.find(p => p.id == req.params.id);
   if (!item) return res.status(404).json({ error: 'Not found' });
-  products = products.filter(p => p.id != req.params.id);
+  item.deletedAt = new Date().toISOString();
   writeData('products.json', products);
   log('product_delete', { id: req.params.id, name: item.name || item.title });
   res.json({ success: true });
@@ -168,9 +189,11 @@ app.post('/api/products/batch', auth, (req, res) => {
   let count = 0;
   if (action === 'delete') {
     const idSet = new Set(ids);
-    const deleted = products.filter(p => idSet.has(p.id));
+    const now = new Date().toISOString();
+    let deleted = [];
+    products.forEach(p => { if (idSet.has(p.id)) { p.deletedAt = now; deleted.push(p); } });
     count = deleted.length;
-    writeData('products.json', products.filter(p => !idSet.has(p.id)));
+    writeData('products.json', products);
     log('product_batch_delete', { count, names: deleted.map(p => p.title || p.name).join(', ') });
   } else if (action === 'update' && data) {
     products.forEach(p => {
@@ -193,7 +216,7 @@ app.post('/api/products/batch', auth, (req, res) => {
 // Product search
 app.get('/api/products/search', (req, res) => {
   const { q, category, status, tag, minPrice, maxPrice } = req.query;
-  let products = readData('products.json');
+  let products = readData('products.json').filter(p => !p.deletedAt);
   if (q) { const kw = q.toLowerCase(); products = products.filter(p => (p.title||'').toLowerCase().includes(kw) || (p.name||'').toLowerCase().includes(kw) || (p.sku||'').toLowerCase().includes(kw)); }
   if (category) products = products.filter(p => p.category === category);
   if (status) products = products.filter(p => p.status === status);
@@ -220,11 +243,12 @@ app.post('/api/contact', (req, res) => {
   messages.unshift(msg);
   writeData('messages.json', messages);
   log('contact_form', { name, email, subject });
+  sendNewMessageEmail(msg);
   res.json({ success: true, message: 'Thank you for your inquiry. We will get back to you within 24 hours.' });
 });
 
 // ===================== MESSAGES (Contact form submissions) =====================
-app.get('/api/messages', auth, (req, res) => res.json(readData('messages.json')));
+app.get('/api/messages', auth, (req, res) => res.json(readData('messages.json').filter(m => !m.deletedAt)));
 app.post('/api/messages', (req, res) => {
   const messages = readData('messages.json');
   const msg = { id: Date.now(), ...req.body, createdAt: new Date().toISOString(), read: false };
@@ -241,8 +265,10 @@ app.put('/api/messages/:id', auth, (req, res) => {
   res.json(messages[idx]);
 });
 app.delete('/api/messages/:id', auth, (req, res) => {
-  let messages = readData('messages.json');
-  messages = messages.filter(m => m.id != req.params.id);
+  const messages = readData('messages.json');
+  const msg = messages.find(m => m.id == req.params.id);
+  if (!msg) return res.status(404).json({ error: 'Not found' });
+  msg.deletedAt = new Date().toISOString();
   writeData('messages.json', messages);
   log('message_delete', { id: req.params.id });
   res.json({ success: true });
@@ -511,6 +537,75 @@ app.post('/api/capture-paypal-order', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ===================== TRASH =====================
+app.get('/api/trash', auth, (req, res) => {
+  const products = readData('products.json').filter(p => p.deletedAt);
+  const messages = readData('messages.json').filter(m => m.deletedAt);
+  const items = [
+    ...products.map(p => ({ ...p, _type: 'product' })),
+    ...messages.map(m => ({ ...m, _type: 'message' }))
+  ];
+  items.sort((a, b) => new Date(b.deletedAt) - new Date(a.deletedAt));
+  res.json(items);
+});
+
+app.put('/api/trash/restore/:type/:id', auth, (req, res) => {
+  const { type, id } = req.params;
+  const file = type === 'product' ? 'products.json' : 'messages.json';
+  const data = readData(file);
+  const item = data.find(d => d.id == id && d.deletedAt);
+  if (!item) return res.status(404).json({ error: 'Not found in trash' });
+  delete item.deletedAt;
+  writeData(file, data);
+  log('trash_restore', { type, id });
+  res.json({ success: true });
+});
+
+app.delete('/api/trash/:type/:id', auth, (req, res) => {
+  const { type, id } = req.params;
+  const file = type === 'product' ? 'products.json' : 'messages.json';
+  let data = readData(file);
+  const item = data.find(d => d.id == id && d.deletedAt);
+  if (!item) return res.status(404).json({ error: 'Not found in trash' });
+  data = data.filter(d => d.id != id);
+  writeData(file, data);
+  log('trash_permanent_delete', { type, id, name: item.name || item.title || item.subject || '' });
+  res.json({ success: true });
+});
+
+// ===================== EMAIL NOTIFICATION (P3-2) =====================
+async function sendNewMessageEmail(msg) {
+  try {
+    const settings = readData('settings.json');
+    if (!settings.smtp_host || !settings.smtp_user || !settings.smtp_pass) return;
+    const transporter = nodemailer.createTransport({
+      host: settings.smtp_host,
+      port: parseInt(settings.smtp_port) || 587,
+      secure: parseInt(settings.smtp_port) === 465,
+      auth: { user: settings.smtp_user, pass: settings.smtp_pass }
+    });
+    await transporter.sendMail({
+      from: `"${settings.smtp_from || 'WaterbearIntl'}" <${settings.smtp_user}>`,
+      to: settings.contact_email || settings.smtp_user,
+      subject: `[新消息] ${msg.subject || '客户询盘'} - ${msg.name}`,
+      html: `<h3>新客户消息</h3>
+        <table style="border-collapse:collapse;font-size:14px">
+          <tr><td style="padding:4px 12px 4px 0;color:#666">姓名</td><td><strong>${msg.name}</strong></td></tr>
+          <tr><td style="padding:4px 12px 4px 0;color:#666">邮箱</td><td>${msg.email}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;color:#666">公司</td><td>${msg.company || '-'}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;color:#666">电话</td><td>${msg.phone || '-'}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;color:#666">国家</td><td>${msg.country || '-'}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;color:#666">主题</td><td>${msg.subject || '-'}</td></tr>
+        </table>
+        <hr><p style="white-space:pre-wrap">${msg.message}</p>
+        <p style="color:#999;font-size:12px">发送时间: ${new Date().toLocaleString('zh-CN')}</p>`
+    });
+    console.log('[EMAIL] Notification sent for message from', msg.email);
+  } catch (err) {
+    console.error('[EMAIL] Failed to send notification:', err.message);
+  }
+}
 
 // ===================== PAYMENT CONFIG (public) =====================
 app.get('/api/payment-config', (req, res) => {

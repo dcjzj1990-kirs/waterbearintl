@@ -186,6 +186,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // === Blog Pagination ===
+  const blogCards = document.querySelectorAll('.blog-card');
+  if (blogCards.length > 0) {
+    const cardsPerPage = 3;
+    const totalPages = Math.ceil(blogCards.length / cardsPerPage);
+    let blogCurrentPage = 1;
+
+    const pageBtns = document.querySelectorAll('[data-page]');
+    const prevBtn = document.querySelector('[data-page-action="prev"]');
+    const nextBtn = document.querySelector('[data-page-action="next"]');
+
+    function showBlogPage(page) {
+      blogCurrentPage = page;
+      blogCards.forEach((card, i) => {
+        const cardPage = Math.floor(i / cardsPerPage) + 1;
+        card.style.display = cardPage === page ? '' : 'none';
+      });
+
+      pageBtns.forEach(btn => {
+        const btnPage = parseInt(btn.getAttribute('data-page'));
+        btn.classList.toggle('active', btnPage === page);
+      });
+
+      if (prevBtn) {
+        prevBtn.disabled = page === 1;
+        prevBtn.style.opacity = page === 1 ? '0.5' : '1';
+      }
+      if (nextBtn) {
+        nextBtn.disabled = page === totalPages;
+        nextBtn.style.opacity = page === totalPages ? '0.5' : '1';
+      }
+    }
+
+    pageBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const page = parseInt(btn.getAttribute('data-page'));
+        if (page) showBlogPage(page);
+      });
+    });
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        if (blogCurrentPage > 1) showBlogPage(blogCurrentPage - 1);
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        if (blogCurrentPage < totalPages) showBlogPage(blogCurrentPage + 1);
+      });
+    }
+
+    showBlogPage(1);
+  }
+
   // === Smooth Scroll for anchor links ===
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', (e) => {

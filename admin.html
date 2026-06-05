@@ -12,6 +12,17 @@
       --accent:#508aff;--accent2:#3860e0;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
       --radius:10px;--sw:225px
     }
+    [data-theme="light"]{
+      --bg:#f5f6fa;--card:#fff;--sidebar:#f0f1f5;--border:#e0e3eb;--text:#1a1a2e;--muted:#6b7280;
+      --accent:#2563eb;--accent2:#1d4ed8;--green:#059669;--red:#dc2626;--amber:#d97706
+    }
+    [data-theme="light"] .stat:hover{background:#f8fafc}
+    [data-theme="light"] tr:hover td{background:#f8fafc}
+    [data-theme="light"] .nav-item:hover{background:#e5e7eb}
+    [data-theme="light"] .nav-item.active{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+    [data-theme="light"] .login-box{box-shadow:0 4px 24px rgba(0,0,0,.08)}
+    [data-theme="light"] .modal{box-shadow:0 4px 24px rgba(0,0,0,.1)}
+    [data-theme="light"] .toast{box-shadow:0 4px 16px rgba(0,0,0,.1)}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
     
     /* Sidebar */
@@ -209,6 +220,29 @@
     .flex{display:flex;align-items:center;gap:6px}
     .bar{border:none;border-radius:0}
     input[type="checkbox"]{accent-color:var(--accent);width:15px;height:15px}
+    
+    /* Autocomplete dropdown */
+    .autocomplete-dropdown{position:absolute;top:100%;left:0;width:180px;max-height:240px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:50;margin-top:2px}
+    .autocomplete-dropdown .ac-item{padding:7px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .autocomplete-dropdown .ac-item:last-child{border-bottom:none}
+    .autocomplete-dropdown .ac-item:hover,.autocomplete-dropdown .ac-item.active{background:rgba(80,138,255,.1);color:#fff}
+    .autocomplete-dropdown .ac-item .ac-sku{font-size:10px;color:var(--muted)}
+    
+    /* Shortcuts help */
+    .shortcuts-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;align-items:center;justify-content:center}
+    .shortcuts-overlay.show{display:flex}
+    .shortcuts-panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .shortcuts-panel h3{font-size:16px;color:#fff;margin-bottom:16px}
+    .shortcuts-panel .kbd-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+    .shortcuts-panel .kbd-row:last-child{border-bottom:none}
+    .shortcuts-panel kbd{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:11px;color:var(--accent);font-family:monospace}
+    
+    /* Multi-image thumbnails */
+    .thumb-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .thumb-item{width:60px;height:60px;border-radius:5px;border:1px solid var(--border);position:relative;overflow:hidden;background:var(--bg)}
+    .thumb-item img{width:100%;height:100%;object-fit:cover}
+    .thumb-item .thumb-remove{position:absolute;top:2px;right:2px;width:18px;height:18px;background:var(--red);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1}
+    .thumb-item:hover .thumb-remove{display:flex}
   </style>
 </head>
 <body>
@@ -220,8 +254,8 @@
       <div class="logo"><div class="licon">W</div>WaterbearIntl</div>
       <div id="loginError" class="lerr"></div>
       <form onsubmit="return doLogin()">
-        <div class="fg"><label>用户名</label><input type="text" id="loginUser" placeholder="admin"></div>
-        <div class="fg"><label>密码</label><input type="password" id="loginPass" placeholder="admin123"></div>
+        <div class="fg"><label>用户名</label><input type="text" id="loginUser" placeholder="请输入用户名" autocomplete="username"></div>
+        <div class="fg"><label>密码</label><input type="password" id="loginPass" placeholder="请输入密码" autocomplete="current-password"></div>
         <button type="submit" class="btn btn-p" style="width:100%;padding:10px;font-size:13.5px;justify-content:center">登 录</button>
       </form>
     </div>
@@ -249,6 +283,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         客户消息 <span id="msgBadge" class="badge" style="display:none">0</span>
       </div>
+      <div class="nav-item" data-page="trash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        回收站 <span id="trashBadge" class="badge" style="display:none">0</span>
+      </div>
       <div class="nav-label">系统设置</div>
       <div class="nav-item" data-page="settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -266,9 +304,15 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         操作日志
       </div>
+      <div class="nav-label">其他</div>
+      <a href="payment.html" class="nav-item" style="text-decoration:none" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Pay Sample Fee
+      </a>
       <div class="sb-footer">
         <div class="user" id="navbarUser"></div>
         <div class="role">管理员</div>
+        <button class="btn btn-o" id="btnThemeToggle" style="width:100%;justify-content:center;font-size:11.5px;margin-bottom:6px" onclick="toggleTheme()">☀ 切换亮色</button>
         <button class="btn btn-o" style="width:100%;justify-content:center;font-size:11.5px" onclick="doLogout()">退出登录</button>
       </div>
     </aside>
@@ -279,6 +323,8 @@
         <div class="page-header"><div><h2>仪表盘</h2><p class="sub">网站运行概览</p></div><span class="text-sm" id="dashTime"></span></div>
         <div class="stats" id="statsGrid"></div>
         <div class="card"><div class="card-hd"><h3>7日趋势</h3></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+        <div class="card"><div class="card-hd"><h3>产品分类分布</h3></div><div class="chart-wrap" style="height:220px"><canvas id="pieChart"></canvas></div></div>
+        <div class="card"><div class="card-hd"><h3>热门产品 Top 5</h3></div><div class="chart-wrap" style="height:200px"><canvas id="top5Chart"></canvas></div></div>
         <div class="card"><div class="card-hd"><h3>最近动态</h3></div><div class="card-bd" id="recentActivity"><div class="spinner"></div></div></div>
       </div>
 
@@ -305,7 +351,7 @@
           <div class="filter-item" data-filter="bestseller" onclick="setProductFilter('bestseller')">热销</div>
         </div>
         <div class="card">
-          <div class="card-hd"><h3>产品列表</h3><div class="search-bar"><input type="text" placeholder="搜索名称/SKU/描述..." id="prodSearch" oninput="renderProductTable()"><select id="prodFilter" onchange="renderProductTable()"><option value="all">全部分类</option><option value="machinery">机械设备</option><option value="hardware">五金件</option><option value="industrial">工业配件</option><option value="electronics">电子产品</option><option value="materials">原材料</option></select><select id="prodSort" onchange="renderProductTable()"><option value="newest">最新</option><option value="oldest">最早</option><option value="name">名称 A-Z</option><option value="name_desc">名称 Z-A</option><option value="price_high">价格高到低</option><option value="price_low">价格低到高</option></select></div></div>
+          <div class="card-hd"><h3>产品列表</h3><div class="search-bar" style="position:relative"><input type="text" placeholder="搜索名称/SKU/描述..." id="prodSearch" oninput="renderProductTable();debounceSearch(this.value)" autocomplete="off"><div class="autocomplete-dropdown" id="searchSuggestions" style="display:none"></div><select id="prodFilter" onchange="renderProductTable()"><option value="all">全部分类</option><option value="machinery">机械设备</option><option value="hardware">五金件</option><option value="industrial">工业配件</option><option value="electronics">电子产品</option><option value="materials">原材料</option></select><select id="prodSort" onchange="renderProductTable()"><option value="newest">最新</option><option value="oldest">最早</option><option value="name">名称 A-Z</option><option value="name_desc">名称 Z-A</option><option value="price_high">价格高到低</option><option value="price_low">价格低到高</option></select></div></div>
           <div class="card-bd"><table><thead><tr><th class="chk-cell sel-col" style="display:none"><input type="checkbox" id="prodCheckAll" onchange="toggleAllProducts()"></th><th>产品</th><th>分类</th><th>价格</th><th>状态</th><th>标签</th><th>更新时间</th><th>操作</th></tr></thead><tbody id="productsTable"><tr><td colspan="8"><div class="spinner"></div></td></tr></tbody></table></div>
           <div class="pagination"><span class="page-info">共 <strong id="prodTotal">0</strong> 条</span><div style="display:flex;gap:4px"><button class="btn btn-o btn-xs" onclick="changeProductPage(-1)" id="prevPage" disabled>上一页</button><button class="btn btn-o btn-xs" onclick="changeProductPage(1)" id="nextPage" disabled>下一页</button></div></div>
         </div>
@@ -403,6 +449,12 @@
         <div class="card"><div class="card-bd"><table><thead><tr><th>时间</th><th>操作</th><th>详情</th></tr></thead><tbody id="logsTable"><tr><td colspan="3"><div class="spinner"></div></td></tr></tbody></table></div>
         <div class="pagination" id="logsPagination"></div></div>
       </div>
+
+      <!-- Trash -->
+      <div id="page-trash" style="display:none">
+        <div class="page-header"><div><h2>回收站</h2><p class="sub">已删除的产品和消息</p></div><button class="btn btn-o btn-sm" onclick="loadTrash()">刷新</button></div>
+        <div class="card"><div class="card-bd"><table><thead><tr><th>类型</th><th>名称/详情</th><th>删除时间</th><th>操作</th></tr></thead><tbody id="trashTable"><tr><td colspan="4"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
     </main>
   </div>
 
@@ -414,18 +466,18 @@
         <div class="form-row"><div class="fg"><label>产品名称 *</label><input type="text" id="prodName" required></div><div class="fg"><label>SKU 编号</label><input type="text" id="prodSku"></div></div>
         <div class="form-row"><div class="fg"><label>分类</label><select id="prodCategory"><option value="machinery">机械设备</option><option value="hardware">五金件</option><option value="industrial">工业配件</option><option value="electronics">电子产品</option><option value="materials">原材料</option></select></div><div class="fg"><label>标签</label><select id="prodTag"><option value="">无</option><option value="bestseller">热销</option><option value="hot">爆款</option><option value="new">新品</option></select></div></div>
         <div class="fg"><label>描述</label><textarea id="prodDesc" rows="3"></textarea></div>
-        <div class="fg"><label>产品图片</label>
+        <div class="fg"><label>产品图片（最多 5 张）</label>
           <div style="display:flex;gap:10px;align-items:flex-start">
             <div id="prodImgPreview" style="width:120px;height:90px;background:var(--bg);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
               <span style="color:var(--muted);font-size:11px">暂无图片</span>
             </div>
             <div style="flex:1">
               <input type="hidden" id="prodImage">
-              <button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('prodImgUpload').click()" style="margin-bottom:6px">选择图片</button>
-              <input type="file" id="prodImgUpload" accept="image/*" style="display:none" onchange="handleProdImageUpload(this)">
-              <button type="button" class="btn btn-d btn-xs" onclick="clearProdImage()" id="btnClearProdImg" style="display:none">清除</button>
-              <p class="text-sm" style="margin-top:4px">或手动输入路径：</p>
-              <input type="text" id="prodImagePath" placeholder="/images/products/xxx.jpg" style="margin-top:4px;padding:5px 8px;font-size:11.5px" oninput="updateProdImgPreview(this.value)">
+              <input type="hidden" id="prodImages" value="[]">
+              <button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('prodImgUpload').click()" style="margin-bottom:6px">选择图片（多选）</button>
+              <input type="file" id="prodImgUpload" accept="image/*" multiple style="display:none" onchange="handleProdMultiUpload(this)">
+              <button type="button" class="btn btn-d btn-xs" onclick="clearAllProdImages()" id="btnClearAllProdImg" style="display:none">清除全部</button>
+              <div class="thumb-grid" id="prodThumbGrid"></div>
             </div>
           </div>
         </div>
@@ -456,7 +508,20 @@
 
   <!-- Confirm Modal -->
   <div class="modal-overlay" id="confirmModal">
-    <div class="modal" style="max-width:380px"><div class="confirm-box"><p id="confirmMsg"></p></div><div class="modal-ft" style="justify-content:center"><button class="btn btn-o" onclick="_confirmCancel()">取消</button><button class="btn btn-d" id="confirmOkBtn">确认</button></div></div>
+    <div class="modal" style="max-width:380px"><div class="confirm-box"><p id="confirmMsg"></p></div><div class="modal-ft" style="justify-content:center"><button class="btn btn-o" id="confirmCancelBtn" onclick="_confirmCancel()">取消</button><button class="btn btn-d" id="confirmOkBtn">确认</button></div></div>
+  </div>
+
+  <!-- Shortcuts Help -->
+  <div class="shortcuts-overlay" id="shortcutsHelp">
+    <div class="shortcuts-panel">
+      <h3>快捷键</h3>
+      <div class="kbd-row"><span>保存产品</span><span><kbd>Ctrl</kbd> + <kbd>S</kbd></span></div>
+      <div class="kbd-row"><span>关闭弹窗</span><span><kbd>Esc</kbd></span></div>
+      <div class="kbd-row"><span>新建产品</span><span><kbd>Ctrl</kbd> + <kbd>N</kbd></span></div>
+      <div class="kbd-row"><span>聚焦搜索</span><span><kbd>Ctrl</kbd> + <kbd>F</kbd></span></div>
+      <div class="kbd-row"><span>显示帮助</span><span><kbd>?</kbd></span></div>
+      <div class="modal-ft" style="margin-top:16px;padding-top:12px"><button class="btn btn-p btn-sm" onclick="document.getElementById('shortcutsHelp').classList.remove('show')">关闭</button></div>
+    </div>
   </div>
 
 <script>
@@ -465,6 +530,7 @@ const API = '';
 let TOKEN = '', __products = [], __images = [], __messages = [];
 let __prodSelectMode = false, __imgSelectMode = false;
 let currentLogPage = 1, trendChart = null, __confirmCb = null;
+let _prodImages = [], _searchTimer = null, _draftTimer = null;
 
 // ============== Toast ==============
 function toast(msg, type='info') {
@@ -475,10 +541,11 @@ function toast(msg, type='info') {
 }
 
 // ============== Confirm ==============
-function confirmAction(msg, cb, btnText='确认删除') {
+function confirmAction(msg, cb, btnText='确认删除', cancelText='取消') {
   __confirmCb = cb;
   document.getElementById('confirmMsg').textContent = msg;
   document.getElementById('confirmOkBtn').textContent = btnText;
+  document.getElementById('confirmCancelBtn').textContent = cancelText;
   document.getElementById('confirmModal').classList.add('show');
   document.getElementById('confirmOkBtn').focus();
 }
@@ -539,7 +606,7 @@ function navTo(page){
   const loaders={
     dashboard:loadDashboard, products:()=>{loadProducts();document.getElementById('prodSearch').value='';document.getElementById('prodFilter').value='all'},
     messages:loadMessages, images:loadImages, settings:loadSettings, users:loadUsers,
-    system:loadSystemInfo, logs:()=>loadLogs(1)
+    system:loadSystemInfo, logs:()=>loadLogs(1), trash:loadTrash
   };
   if(loaders[page])loaders[page]();
 }
@@ -579,6 +646,8 @@ function loadDashboard(){
     if(d.error||!d.data||!d.data.length){el.innerHTML='<div class="empty">暂无操作记录</div>';return}
     el.innerHTML='<table>'+d.data.slice(0,8).map(l=>`<tr><td style="width:160px">${new Date(l.time).toLocaleString('zh-CN')}</td><td style="width:130px">${logLabel(l.action)}</td><td class="text-sm">${JSON.stringify(l.detail).substring(0,50)}</td></tr>`).join('')+'</table>';
   });
+  // Enhanced charts (P2-1)
+  loadEnhancedCharts();
 }
 
 // ============== Products ==============
@@ -723,11 +792,12 @@ function duplicateProduct(id){
 
 function openProductModal(){
   document.getElementById('productModalTitle').textContent='新增产品';
-  document.getElementById('prodId').value='';['prodName','prodSku','prodDesc','prodImage','prodImagePath','prodPrice'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('prodId').value='';['prodName','prodSku','prodDesc','prodImage','prodPrice'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('prodCategory').value='machinery';document.getElementById('prodTag').value='';
   document.getElementById('prodStatus').value='active';document.getElementById('prodFeatured').value='false';
-  clearProdImage();
+  _prodImages=[];renderProdThumbGrid();updateProdImgPreview();
   document.getElementById('prodImgUpload').value='';
+  checkDraft('new');
   document.getElementById('productModal').classList.add('show');
 }
 function editProduct(p){
@@ -735,19 +805,25 @@ function editProduct(p){
   document.getElementById('prodId').value=p.id;document.getElementById('prodName').value=p.title||p.name||'';
   document.getElementById('prodSku').value=p.sku||'';document.getElementById('prodCategory').value=p.category||'machinery';
   document.getElementById('prodTag').value=p.tag||'';document.getElementById('prodDesc').value=p.description||'';
-  document.getElementById('prodImage').value=p.image||'';document.getElementById('prodImagePath').value=p.image||'';
+  document.getElementById('prodImage').value=p.image||'';
   document.getElementById('prodPrice').value=p.price||'';
   document.getElementById('prodStatus').value=p.status||'active';document.getElementById('prodFeatured').value=p.featured?'true':'false';
-  updateProdImgPreview(p.image||'');
+  // Load existing images
+  const existing=p.images||(p.image?[p.image]:[]);
+  _prodImages=existing.map(img=>({url:img,existing:true}));
+  renderProdThumbGrid();
+  updateProdImgPreview(existing[0]||'');
   document.getElementById('prodImgUpload').value='';
+  checkDraft('edit_'+p.id);
   document.getElementById('productModal').classList.add('show');
 }
 function saveProduct(){
   const id=document.getElementById('prodId').value;
-  const body={title:document.getElementById('prodName').value.trim(),name:document.getElementById('prodName').value.trim(),sku:document.getElementById('prodSku').value.trim(),category:document.getElementById('prodCategory').value,tag:document.getElementById('prodTag').value,description:document.getElementById('prodDesc').value.trim(),image:document.getElementById('prodImage').value.trim(),price:document.getElementById('prodPrice').value.trim(),status:document.getElementById('prodStatus').value,featured:document.getElementById('prodFeatured').value==='true'};
+  const images=_prodImages.map(i=>i.url).filter(Boolean);
+  const body={title:document.getElementById('prodName').value.trim(),name:document.getElementById('prodName').value.trim(),sku:document.getElementById('prodSku').value.trim(),category:document.getElementById('prodCategory').value,tag:document.getElementById('prodTag').value,description:document.getElementById('prodDesc').value.trim(),image:images[0]||'',images:images,price:document.getElementById('prodPrice').value.trim(),status:document.getElementById('prodStatus').value,featured:document.getElementById('prodFeatured').value==='true'};
   if(!body.title){toast('请输入产品名称','error');return false}
   const method=id?'PUT':'POST',path=id?`/api/products/${id}`:'/api/products';
-  api(method,path,body).then(d=>{if(d.error){toast(d.error,'error');return}closeModal('productModal');loadProducts();toast(id?'已更新':'已创建','success')});
+  api(method,path,body).then(d=>{if(d.error){toast(d.error,'error');return}closeModal('productModal');clearDraft(id?'edit_'+id:'new');loadProducts();toast(id?'已更新':'已创建','success')});
   return false;
 }
 function deleteProduct(id){confirmAction('确认删除该产品？',()=>{api('DELETE','/api/products/'+id).then(d=>{if(d.error){toast(d.error,'error');return}loadProducts();toast('已删除','success')})})}
@@ -1002,31 +1078,171 @@ function closeModal(id){document.getElementById(id).classList.remove('show')}
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function downloadBlob(content,filename,mime){const b=new Blob([content],{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=filename;a.click()}
 
-// ============== Product Image Upload ==============
-function handleProdImageUpload(input){
-  const file=input.files[0];if(!file)return;
-  const formData=new FormData();formData.append('image',file);
-  apiRaw('POST','/api/upload',formData).then(d=>{
-    if(d.error){toast(d.error,'error');return}
-    document.getElementById('prodImage').value=d.path;
-    document.getElementById('prodImagePath').value=d.path;
-    updateProdImgPreview(d.path);
-    document.getElementById('btnClearProdImg').style.display='';
-    loadImages();
-    toast('上传成功','success');
+// ============== Product Image Upload (Multi) ==============
+function handleProdMultiUpload(input){
+  const files=input.files;if(!files||!files.length)return;
+  if(_prodImages.length+files.length>5){toast('最多5张图片','error');input.value='';return}
+  let uploaded=0;
+  Array.from(files).forEach(file=>{
+    const formData=new FormData();formData.append('image',file);
+    apiRaw('POST','/api/upload',formData).then(d=>{
+      if(!d.error){
+        _prodImages.push({url:d.path,existing:false});
+        renderProdThumbGrid();
+        if(!document.getElementById('prodImage').value)document.getElementById('prodImage').value=d.path;
+      }
+      uploaded++;if(uploaded===files.length){loadImages();input.value=''}
+    });
   });
 }
+function renderProdThumbGrid(){
+  const grid=document.getElementById('prodThumbGrid');if(!grid)return;
+  if(!_prodImages.length){grid.innerHTML='';document.getElementById('btnClearAllProdImg').style.display='none';return}
+  document.getElementById('btnClearAllProdImg').style.display='';
+  grid.innerHTML=_prodImages.map((img,i)=>`<div class="thumb-item"><img src="${img.url}" onerror="this.style.display='none'"><button class="thumb-remove" onclick="removeProdImage(${i})">×</button></div>`).join('');
+  updateProdImgPreview(_prodImages[0]?.url||'');
+}
+function removeProdImage(i){_prodImages.splice(i,1);renderProdThumbGrid();if(!_prodImages.length)updateProdImgPreview('')}
+function clearAllProdImages(){_prodImages=[];renderProdThumbGrid();updateProdImgPreview('');document.getElementById('prodImage').value=''}
 function updateProdImgPreview(path){
   const el=document.getElementById('prodImgPreview');if(!el)return;
-  if(path){el.innerHTML=`<img src="${path}" style="width:100%;height:100%;object-fit:cover">`;document.getElementById('btnClearProdImg').style.display='';}
-  else{el.innerHTML='<span style="color:var(--muted);font-size:11px">暂无图片</span>';document.getElementById('btnClearProdImg').style.display='none'}
+  if(path){el.innerHTML=`<img src="${path}" style="width:100%;height:100%;object-fit:cover">`}
+  else{el.innerHTML='<span style="color:var(--muted);font-size:11px">暂无图片</span>'}
 }
-function clearProdImage(){
-  document.getElementById('prodImage').value='';
-  document.getElementById('prodImagePath').value='';
-  document.getElementById('prodImgUpload').value='';
-  updateProdImgPreview('');
+
+// ============== Theme Toggle (P0-1) ==============
+function toggleTheme(){
+  const html=document.documentElement;
+  const isLight=html.getAttribute('data-theme')==='light';
+  if(isLight){html.removeAttribute('data-theme');localStorage.setItem('wb_theme','dark');document.getElementById('btnThemeToggle').innerHTML='☀ 切换亮色'}
+  else{html.setAttribute('data-theme','light');localStorage.setItem('wb_theme','light');document.getElementById('btnThemeToggle').innerHTML='☾ 切换暗色'}
 }
+
+// ============== Trash (P0-2) ==============
+function loadTrash(){
+  api('GET','/api/trash').then(d=>{
+    const tbody=document.getElementById('trashTable');const badge=document.getElementById('trashBadge');
+    if(d.error){tbody.innerHTML='<tr><td colspan="4"><div class="empty">加载失败</div></td></tr>';return}
+    const items=Array.isArray(d)?d:[];
+    const total=items.length;badge.style.display=total?'inline-block':'none';badge.textContent=total;
+    if(!total){tbody.innerHTML='<tr><td colspan="4"><div class="empty">回收站为空</div></td></tr>';return}
+    tbody.innerHTML=items.map(i=>{
+      const dateStr=i.deletedAt?new Date(i.deletedAt).toLocaleString('zh-CN'):'-';
+      const type=i._type||'product';
+      const name=type==='product'?(i.title||i.name||'未命名'):(i.subject||'消息 #'+i.id);
+      return `<tr><td><span class="tag ${type==='product'?'tag-on':'tag-new'}">${type==='product'?'产品':'消息'}</span></td><td>${esc(name)}</td><td>${dateStr}</td><td><div class="flex" style="gap:3px"><button class="btn btn-p btn-xs" onclick="restoreItem('${type}',${i.id})">恢复</button><button class="btn btn-d btn-xs" onclick="permanentlyDelete('${type}',${i.id})">永久删除</button></div></td></tr>`;
+    }).join('');
+  });
+}
+function restoreItem(type,id){
+  confirmAction('确认恢复？',()=>{
+    api('PUT','/api/trash/restore/'+type+'/'+id).then(d=>{
+      if(d.error){toast(d.error,'error');return}
+      toast('已恢复','success');loadTrash();
+      if(type==='product')loadProducts();else loadMessages();
+    });
+  });
+}
+function permanentlyDelete(type,id){
+  confirmAction('⚠️ 永久删除后不可恢复！确认删除？',()=>{
+    api('DELETE','/api/trash/'+type+'/'+id).then(d=>{
+      if(d.error){toast(d.error,'error');return}
+      toast('已永久删除','success');loadTrash();
+    });
+  });
+}
+
+// ============== Enhanced Charts (P2-1) ==============
+function loadEnhancedCharts(){
+  loadPieChart();loadTop5Chart();
+}
+function loadPieChart(){
+  api('GET','/api/products').then(d=>{
+    const list=Array.isArray(d)?d:[];
+    const counts={};list.forEach(p=>{const c=p.category||'other';counts[c]=(counts[c]||0)+1});
+    const catLabels={machinery:'机械设备',hardware:'五金件',industrial:'工业配件',electronics:'电子产品',materials:'原材料',other:'其他'};
+    const labels=Object.keys(counts).map(k=>catLabels[k]||k);const data=Object.values(counts);
+    const colors=['#508aff','#22c55e','#f59e0b','#ef4444','#a855f7','#64748b'];
+    const ctx=document.getElementById('pieChart');if(!ctx)return;
+    new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors.slice(0,data.length),borderColor:'var(--card)',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'var(--text)',padding:16,font:{size:11}}}}}});
+  });
+}
+function loadTop5Chart(){
+  api('GET','/api/products').then(d=>{
+    const list=Array.isArray(d)?d:[];
+    const sorted=list.filter(p=>p.price).sort((a,b)=>parseFloat(a.price)-parseFloat(b.price));
+    const top5=sorted.slice(0,5);
+    const ctx=document.getElementById('top5Chart');if(!ctx)return;
+    new Chart(ctx,{type:'bar',data:{labels:top5.map(p=>(p.title||p.name||'').substring(0,20)),datasets:[{label:'价格(USD)',data:top5.map(p=>parseFloat(p.price)),backgroundColor:'#508aff',borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'var(--border)'},ticks:{color:'var(--muted)',font:{size:10}}},y:{grid:{display:false},ticks:{color:'var(--text)',font:{size:11}}}}}});
+  });
+}
+
+// ============== Autocomplete Search (P1-2) ==============
+function debounceSearch(val){
+  clearTimeout(_searchTimer);
+  if(!val||val.length<2){document.getElementById('searchSuggestions').style.display='none';return}
+  _searchTimer=setTimeout(()=>{
+    const list=getFilteredProducts();const q=val.toLowerCase();
+    const matches=list.filter(p=>(p.title||p.name||'').toLowerCase().includes(q)||(p.sku||'').toLowerCase().includes(q)).slice(0,8);
+    const dd=document.getElementById('searchSuggestions');
+    if(!matches.length){dd.style.display='none';return}
+    dd.innerHTML=matches.map(p=>`<div class="ac-item" onclick="selectAutocomplete('${p.id}')"><span>${esc((p.title||p.name||'').substring(0,25))}</span><span class="ac-sku">${esc(p.sku||'')}</span></div>`).join('');
+    dd.style.display='block';
+  },300);
+}
+function selectAutocomplete(id){
+  const p=__products.find(x=>x.id===id);if(!p)return;
+  document.getElementById('prodSearch').value=p.title||p.name||'';
+  document.getElementById('searchSuggestions').style.display='none';
+  renderProductTable();
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.search-bar'))document.getElementById('searchSuggestions').style.display='none'});
+
+// ============== Keyboard Shortcuts (P2-2) ==============
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT'){
+    if(e.ctrlKey&&e.key==='s'){e.preventDefault();saveProduct();return}
+    if(e.key==='Escape'){closeModal('productModal');closeModal('userModal');closeModal('imgPreviewModal');closeModal('confirmModal');return}
+  }
+  if(document.getElementById('productModal').classList.contains('show'))return;
+  if(e.ctrlKey&&e.key==='n'){e.preventDefault();openProductModal();return}
+  if(e.ctrlKey&&e.key==='f'){e.preventDefault();const s=document.getElementById('prodSearch');if(s){s.focus();s.select()};return}
+  if(e.key==='?'){e.preventDefault();document.getElementById('shortcutsHelp').classList.toggle('show');return}
+});
+document.getElementById('shortcutsHelp').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+
+// ============== Auto-Save Draft (P3-1) ==============
+function getDraftKey(suffix){return 'wb_draft_'+suffix}
+function checkDraft(suffix){
+  const key=getDraftKey(suffix);const raw=localStorage.getItem(key);if(!raw)return;
+  try{
+    const draft=JSON.parse(raw);
+    confirmAction(`检测到未保存的草稿（${new Date(draft.ts).toLocaleString('zh-CN')}），是否恢复？`,()=>{restoreDraft(draft)},'恢复','丢弃');
+  }catch{localStorage.removeItem(key)}
+}
+function restoreDraft(draft){
+  ['prodName','prodSku','prodDesc','prodPrice'].forEach(id=>{if(draft[id]!==undefined)document.getElementById(id).value=draft[id]});
+  if(draft.category)document.getElementById('prodCategory').value=draft.category;
+  if(draft.tag)document.getElementById('prodTag').value=draft.tag;
+  if(draft.status)document.getElementById('prodStatus').value=draft.status;
+  if(draft.featured)document.getElementById('prodFeatured').value=draft.featured;
+  if(draft.image)document.getElementById('prodImage').value=draft.image;
+  if(draft._prodImages){_prodImages=draft._prodImages;renderProdThumbGrid();updateProdImgPreview(draft.image||'')}
+  toast('草稿已恢复','success');
+}
+function startDraftTimer(){
+  clearInterval(_draftTimer);
+  _draftTimer=setInterval(()=>{
+    const id=document.getElementById('prodId').value;if(!document.getElementById('productModal').classList.contains('show'))return;
+    const suffix=id?'edit_'+id:'new';
+    const draft={ts:Date.now(),title:document.getElementById('prodName').value,sku:document.getElementById('prodSku').value,desc:document.getElementById('prodDesc').value,price:document.getElementById('prodPrice').value,category:document.getElementById('prodCategory').value,tag:document.getElementById('prodTag').value,status:document.getElementById('prodStatus').value,featured:document.getElementById('prodFeatured').value,image:document.getElementById('prodImage').value,_prodImages};
+    try{localStorage.setItem(getDraftKey(suffix),JSON.stringify(draft))}catch{}
+  },30000);
+}
+function clearDraft(suffix){localStorage.removeItem(getDraftKey(suffix))}
+
+// Init auto-save timer
+startDraftTimer();
 
 // ============== Settings Banner Upload ==============
 function handleBannerUpload(input){
@@ -1051,7 +1267,12 @@ function clearBanner(){document.getElementById('setBanner').value='';document.ge
 document.querySelectorAll('.modal-overlay').forEach(ov=>{ov.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')})});
 
 // Init
-(function(){TOKEN=localStorage.getItem('wb_token')||'';if(TOKEN){showAdmin();return}document.getElementById('loginPage').style.display='flex';document.getElementById('adminPanel').style.display='none'})();
+(function(){
+  const savedTheme=localStorage.getItem('wb_theme');
+  if(savedTheme==='light'){document.documentElement.setAttribute('data-theme','light');document.getElementById('btnThemeToggle').innerHTML='☾ 切换暗色'}
+  TOKEN=localStorage.getItem('wb_token')||'';if(TOKEN){showAdmin();return}
+  document.getElementById('loginPage').style.display='flex';document.getElementById('adminPanel').style.display='none'
+})();
 </script>
 </body>
 </html>

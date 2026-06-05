@@ -4,14 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="page_title_payment">Pay Sample Fee - WaterbearIntl</title>
+  <meta name="description" content="Pay sample fees securely online via PayPal. WaterbearIntl supports global B2B trade with fast and reliable payment options.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏭</text></svg>">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="page-payment">
+
   <!-- Header -->
-  <header class="header">
+  <header class="header" id="header">
     <div class="header-inner">
-      <a href="index.html" class="logo">WATERBEAR<span>INTL</span></a>
-      <nav id="mainNav" class="nav">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">W</div>
+        <span>WaterbearIntl</span>
+      </a>
+      <nav class="nav" id="mainNav" role="navigation">
         <a href="index.html" class="nav-link" data-i18n="nav_home">Home</a>
         <a href="products.html" class="nav-link" data-i18n="nav_products">Products</a>
         <a href="about.html" class="nav-link" data-i18n="nav_about">About Us</a>
@@ -25,110 +31,136 @@
           <button class="lang-btn active" data-lang="en">EN</button>
           <button class="lang-btn" data-lang="zh">中文</button>
         </div>
-        <a href="contact.html" class="btn-nav-inquiry" data-i18n="nav_inquiry">INQUIRY</a>
+        <a href="contact.html" class="btn btn-primary" data-i18n="nav_inquiry">INQUIRY</a>
       </div>
-      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
   </header>
 
-  <!-- Payment Section -->
-  <main class="payment-page">
-    <section class="payment-hero">
-      <div class="section-container">
-        <h1 data-i18n="payment_title">Pay Sample Fee</h1>
-        <p class="payment-desc" data-i18n="payment_desc">Secure and convenient online payment, supporting PayPal and Credit Card</p>
-      </div>
-    </section>
+  <!-- Page Banner -->
+  <section class="page-banner dark-banner">
+    <div class="banner-bg-wrapper">
+      <img src="images/products-bg-new.jpg" alt="" class="banner-bg-img">
+      <div class="banner-bg-overlay"></div>
+    </div>
+    <div class="container">
+      <h2 data-i18n="payment_title">Pay Sample Fee</h2>
+      <p data-i18n="payment_desc">Secure and convenient online payment, supporting PayPal and Credit Card</p>
+    </div>
+  </section>
 
-    <section class="payment-main">
-      <div class="section-container">
-        <div class="payment-grid">
-          <!-- Payment Form -->
-          <div class="payment-form-card">
-            <h2 data-i18n="payment_title">Pay Sample Fee</h2>
+  <!-- Payment Main -->
+  <section class="section">
+    <div class="container">
+      <div class="payment-grid">
+        <!-- Payment Form -->
+        <div class="payment-form-card">
+          <h2 data-i18n="payment_title">Pay Sample Fee</h2>
 
-            <div class="form-group">
-              <label data-i18n="payment_amount_label">Amount (USD)</label>
-              <div class="amount-input-group">
-                <span class="currency-symbol">$</span>
-                <input type="number" id="paymentAmount" data-i18n-ph="payment_amount_ph"
-                       placeholder="Enter amount ($50 ~ $2000)" min="50" max="2000" step="1" value="100">
-              </div>
-              <div class="amount-presets">
-                <button class="preset-btn" data-amount="50">$50</button>
-                <button class="preset-btn" data-amount="100">$100</button>
-                <button class="preset-btn active" data-amount="200">$200</button>
-                <button class="preset-btn" data-amount="500">$500</button>
-                <button class="preset-btn" data-amount="1000">$1000</button>
-                <button class="preset-btn" data-amount="2000">$2000</button>
-              </div>
+          <div class="form-group">
+            <label data-i18n="payment_amount_label">Amount (USD)</label>
+            <div class="amount-input-group">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="paymentAmount" data-i18n-ph="payment_amount_ph"
+                     placeholder="Enter amount ($50 ~ $2000)" min="50" max="2000" step="1" value="100">
             </div>
-
-            <div class="form-group">
-              <label data-i18n="payment_purpose_label">Payment Purpose</label>
-              <select id="paymentPurpose">
-                <option value="sample" data-i18n="payment_purpose_sample">Sample Fee</option>
-                <option value="deposit" data-i18n="payment_purpose_deposit">Deposit</option>
-                <option value="other" data-i18n="payment_purpose_other">Other</option>
-              </select>
-            </div>
-
-            <!-- Payment Status Display -->
-            <div id="paymentStatus" class="payment-status" style="display:none;"></div>
-
-            <!-- PayPal Button Container -->
-            <div id="paypalButtonContainer" class="paypal-button-container"></div>
-
-            <!-- Back links -->
-            <div class="payment-back-links">
-              <a href="index.html" data-i18n="payment_back_home">Back to Home</a>
-              <a href="contact.html" data-i18n="payment_back_contact">Contact Us</a>
+            <div class="amount-presets">
+              <button class="preset-btn" data-amount="50">$50</button>
+              <button class="preset-btn" data-amount="100">$100</button>
+              <button class="preset-btn active" data-amount="200">$200</button>
+              <button class="preset-btn" data-amount="500">$500</button>
+              <button class="preset-btn" data-amount="1000">$1000</button>
+              <button class="preset-btn" data-amount="2000">$2000</button>
             </div>
           </div>
 
-          <!-- Payment History -->
-          <div class="payment-history-card">
-            <h3 data-i18n="payment_history">Payment History</h3>
-            <div id="paymentHistory" class="payment-history-list">
-              <p class="no-history">No payment records yet</p>
-            </div>
+          <div class="form-group">
+            <label data-i18n="payment_purpose_label">Payment Purpose</label>
+            <select id="paymentPurpose">
+              <option value="sample" data-i18n="payment_purpose_sample">Sample Fee</option>
+              <option value="deposit" data-i18n="payment_purpose_deposit">Deposit</option>
+              <option value="other" data-i18n="payment_purpose_other">Other</option>
+            </select>
+          </div>
+
+          <!-- Payment Status Display -->
+          <div id="paymentStatus" class="payment-status" style="display:none;"></div>
+
+          <!-- PayPal Button Container -->
+          <div id="paypalButtonContainer" class="paypal-button-container"></div>
+
+          <!-- Back links -->
+          <div class="payment-back-links">
+            <a href="index.html" data-i18n="payment_back_home">Back to Home</a>
+            <a href="contact.html" data-i18n="payment_back_contact">Contact Us</a>
+          </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="payment-history-card">
+          <h3 data-i18n="payment_history">Payment History</h3>
+          <div id="paymentHistory" class="payment-history-list">
+            <p class="no-history" data-i18n="payment_no_history">No payment records yet</p>
           </div>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <a href="index.html" class="footer-logo">WATERBEAR<span>INTL</span></a>
-        <p data-i18n="footer_brand_desc">Professional industrial products export company.</p>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3 style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <div class="logo-icon" style="width:32px;height:32px;font-size:0.9rem;">W</div>
+            WaterbearIntl
+          </h3>
+          <p data-i18n="footer_brand_desc">Professional industrial products export company, delivering premium Chinese-manufactured products and one-stop procurement solutions worldwide.</p>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer_products">Products</h4>
+          <ul>
+            <li><a href="products.html" data-i18n="prod1_name">Precision CNC Machine</a></li>
+            <li><a href="products.html" data-i18n="prod2_name">Industrial Bearings</a></li>
+            <li><a href="products.html" data-i18n="prod3_name">Stainless Steel Valves</a></li>
+            <li><a href="products.html" data-i18n="prod4_name">LED Industrial Lighting</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="nav_about">About</h4>
+          <ul>
+            <li><a href="about.html" data-i18n="nav_about">About Us</a></li>
+            <li><a href="services.html" data-i18n="nav_services">Services</a></li>
+            <li><a href="blog.html" data-i18n="nav_blog">News</a></li>
+            <li><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer_support">Support</h4>
+          <ul>
+            <li><a href="#" data-i18n="footer_privacy">Privacy Policy</a></li>
+            <li><a href="#" data-i18n="footer_terms">Terms of Service</a></li>
+            <li><a href="mailto:info@waterbearintl.com">info@waterbearintl.com</a></li>
+            <li><a href="tel:+8657488888888">+86 574 8888 8888</a></li>
+          </ul>
+        </div>
       </div>
-      <div class="footer-col">
-        <h4 data-i18n="footer_products">Products</h4>
-        <a href="products.html" data-i18n="nav_products">Products</a>
+      <div class="footer-bottom">
+        <span data-i18n="footer_copyright">&copy; 2026 WaterbearIntl. All rights reserved.</span>
       </div>
-      <div class="footer-col">
-        <h4 data-i18n="footer_company">Company</h4>
-        <a href="about.html" data-i18n="nav_about">About Us</a>
-        <a href="contact.html" data-i18n="nav_contact">Contact</a>
-      </div>
-      <div class="footer-col">
-        <h4 data-i18n="footer_support_title">Support</h4>
-        <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
-        <a href="#" data-i18n="footer_terms">Terms of Service</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p data-i18n="footer_copyright">&copy; 2026 WaterbearIntl. All rights reserved.</p>
     </div>
   </footer>
 
+  <!-- Back to Top -->
+  <button class="back-to-top" id="backToTop" data-i18n="back_to_top" aria-label="Back to top">&uarr;</button>
+
   <!-- Scripts -->
+  <script src="js/data-loader.js"></script>
   <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
   <script src="js/geo-detect.js"></script>
   <script src="js/payment.js"></script>
   <script>window.PAGE_ID = 'payment';</script>
