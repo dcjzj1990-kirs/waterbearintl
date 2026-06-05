@@ -3,7 +3,7 @@
  * 用法：在 contact.html 页面底部引入
  */
 (function() {
-  const form = document.getElementById('contactForm');
+  const form = document.getElementById('inquiryForm');
   if (!form) return;
 
   form.addEventListener('submit', async function(e) {

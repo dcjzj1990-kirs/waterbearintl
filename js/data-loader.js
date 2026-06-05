@@ -82,7 +82,7 @@
 
   // ============ 提交联系表单 ============
   async function submitContactForm(formData) {
-    return await fetchJSON(API + '/api/messages', {
+    return await fetchJSON(API + '/api/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
