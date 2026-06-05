@@ -26,8 +26,12 @@ if (!JWT_SECRET || JWT_SECRET.length < 16) {
     envContent = fs.readFileSync(ENV_PATH, 'utf8');
   }
   if (!envContent.includes('JWT_SECRET=')) {
-    fs.appendFileSync(ENV_PATH, `\nJWT_SECRET=${JWT_SECRET}\n`);
-    console.warn('[SECURITY] JWT_SECRET was auto-generated and saved to .env — please keep this file safe!');
+    try {
+      fs.appendFileSync(ENV_PATH, `\nJWT_SECRET=${JWT_SECRET}\n`);
+      console.warn('[SECURITY] JWT_SECRET was auto-generated and saved to .env — please keep this file safe!');
+    } catch (e) {
+      console.warn('[SECURITY] JWT_SECRET auto-generated (read-only env, not saved to disk). Set JWT_SECRET env variable for persistence.');
+    }
   } else {
     console.warn('[SECURITY] JWT_SECRET found in .env but too short, using auto-generated value. Please update manually.');
   }
