@@ -621,3 +621,5 @@ app.listen(PORT, () => {
   console.log(`Admin: http://localhost:${PORT}/admin.html`);
   console.log(`Default admin password is set via ADMIN_PASSWORD env variable (or 'admin123' if not set). Change it immediately in production.`);
 });
+
+module.exports = app;
